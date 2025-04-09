@@ -121,7 +121,7 @@
     });
 
     async function submitForm() {
-      await liff.init({ liffId: "YOUR_LIFF_ID" });
+      await liff.init({ liffId: "2007228552-OdkKEe6Y" });
       const profile = await liff.getProfile();
 
       const data = {
@@ -156,7 +156,7 @@
         }
       }
 
-      fetch("YOUR_GAS_WEBAPP_URL", {
+      fetch("https://script.google.com/macros/s/AKfycbyAD7PrDNDZl5Plx89ybgpsFs7TgCL9sjzgH6KYheN55sPYCxJ_SnyLI2zfzxtaTwTOwg/exec", {
         method: "POST",
         body: JSON.stringify(data),
       });
