@@ -160,10 +160,14 @@
         }
       }
 
-      fetch("https://script.google.com/macros/s/AKfycbyLCwVI3yLYOXdLLroc5bqIILD9z6rnS5N9tJ2yUDaAQ4K2tTHQ31a1-VmibwYCKLMp2w/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbyAD7PrDNDZl5Plx89ybgpsFs7TgCL9sjzgH6KYheN55sPYCxJ_SnyLI2zfzxtaTwTOwg/exec", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"  // ← これがないと e.postData が来ない
+        },
         body: JSON.stringify(data),
       });
+
 
       alert("送信しました！");
     }
