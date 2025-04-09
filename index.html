@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>相談依頼フォーム</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    .field { margin-bottom: 12px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h2>相談依頼フォーム</h2>
+
+  <div class="field">
+    <label>依頼の種類:</label><br>
+    <select id="typeSelect" onchange="renderForm()">
+      <option value="">選択してください</option>
+      <option value="リッチメニュー">リッチメニュー</option>
+      <option value="クーポン">クーポン</option>
+      <option value="メニュー追加・変更">メニュー追加・変更</option>
+      <option value="その他">その他</option>
+      <option value="配信代行依頼">配信代行依頼</option>
+    </select>
+  </div>
+
+  <div id="formContainer"></div>
+
+  <button onclick="submitForm()">送信</button>
+
+  <script>
+    let userId = '';
+
+    async function initLiff() {
+      await liff.init({ liffId: '2007228552-OdkKEe6Y' });
+      if (!liff.isLoggedIn()) liff.login();
+      const profile = await liff.getProfile();
+      userId = profile.userId;
+    }
+
+    function renderForm() {
+      const type = document.getElementById('typeSelect').value;
+      const container = document.getElementById('formContainer');
+      container.innerHTML = ''; // clear
+
+      if (type === 'リッチメニュー') {
+        container.innerHTML = `
+          <div class="field">
+            <label>種類:</label>
+            <select id="category">
+              <option>新規作成</option>
+              <option>デザイン変更（ボタン追加）</option>
+              <option>デザイン変更（ボタン変更）</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>内容:</label>
+            <textarea id="text"></textarea>
+          </div>`;
+      } else if (type === 'クーポン') {
+        container.innerHTML = `
+          <div class="field">
+            <label>クーポンの種類:</label>
+            <input type="text" id="type">
+          </div>
+          <div class="field">
+            <label>クーポン名:</label>
+            <input type="text" id="name">
+          </div>
+          <div class="field">
+            <label>有効期間:</label>
+            <input type="text" id="period" placeholder="例：2025年4月10日～2025年4月30日">
+          </div>
+          <div class="field">
+            <label>利用ガイド:</label>
+            <textarea id="guide"></textarea>
+          </div>
+          <div class="field">
+            <label>利用回数:</label>
+            <select id="usage">
+              <option>1回のみ</option>
+              <option>無制限</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>利用用途:</label>
+            <textarea id="purpose"></textarea>
+          </div>`;
+      } else if (type === 'メニュー追加・変更') {
+        container.innerHTML = `
+          <div class="field">
+            <label>操作:</label>
+            <select id="action">
+              <option>追加</option>
+              <option>変更</option>
+              <option>削除</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>内容:</label>
+            <textarea id="text"></textarea>
+          </div>`;
+      } else if (type === 'その他') {
+        container.innerHTML = `
+          <div class="field">
+            <label>内容:</label>
+            <textarea id="text"></textarea>
+          </div>`;
+      } else if (type === '配信代行依頼') {
+        container.innerHTML = `
+          <div class="field">
+            <label>配信日時:</label>
+            <input type="datetime-local" id="datetime">
+          </div>
+          <div class="field">
+            <label>配信内容:</label>
+            <textarea id="content"></textarea>
+          </div>
+          <div class="field">
+            <label>備考:</label>
+            <textarea id="note"></textarea>
+          </div>`;
+      }
+    }
+
+    function submitForm() {
+      const type = document.getElementById('typeSelect').value;
+      let payload = {};
+
+      if (type === 'リッチメニュー') {
+        payload.category = document.getElementById('category').value;
+        payload.text = document.getElementById('text').value;
+      } else if (type === 'クーポン') {
+        payload.type = document.getElementById('type').value;
+        payload.name = document.getElementById('name').value;
+        payload.period = document.getElementById('period').value;
+        payload.guide = document.getElementById('guide').value;
+        payload.usage = document.getElementById('usage').value;
+        payload.purpose = document.getElementById('purpose').value;
+      } else if (type === 'メニュー追加・変更') {
+        payload.action = document.getElementById('action').value;
+        payload.text = document.getElementById('text').value;
+      } else if (type === 'その他') {
+        payload.text = document.getElementById('text').value;
+      } else if (type === '配信代行依頼') {
+        payload.datetime = document.getElementById('datetime').value;
+        payload.content = document.getElementById('content').value;
+        payload.note = document.getElementById('note').value;
+      }
+
+      fetch('https://script.google.com/macros/s/AKfycbzck903fsYg8ObNTtcOKarL18uhls3sfnPJVRAv0iofRPK-kPhSXyC1PMx-ep32msw66Q/exec', {
+        method: 'POST',
+        body: JSON.stringify({ userId, type, payload }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(res => res.json())
+      .then(json => {
+        alert('送信完了しました！');
+        liff.closeWindow();
+      })
+      .catch(err => {
+        console.error(err);
+        alert('送信エラーが発生しました');
+      });
+    }
+
+    window.onload = initLiff;
+  </script>
+</body>
+</html>
