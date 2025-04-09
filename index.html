@@ -760,38 +760,205 @@
             flatpickr(`#${id}`, datePickerOptions);
         });
         
-        // LINEとの連携用 - メッセージを送信する関数
-        function sendToLine(formData) {
-            try {
-                liff.sendMessages([
-                    {
-                        type: 'text',
-                        text: formData
-                    }
-                ])
-                .then(() => {
-                    console.log("メッセージ送信成功");
-                    // フォームリセット
-                    document.getElementById('meeting-form').reset();
-                    document.getElementById('consult-form').reset();
-                    
-                    // 初期表示に戻す
-                    document.getElementById('meeting-confirmation').style.display = 'none';
-                    document.getElementById('support-form').classList.add('active');
-                    document.getElementById('consult-notice').style.display = 'none';
-                    document.getElementById('consultation-form').style.display = 'none';
-                    
-                    // タブとステートをリセット
-                    currentTab = 'support';
-                    consultationState = 'notice';
-                    
-                    alert("送信が完了しました。LINEに戻ります。");
-                    
-                    // LIFFウィンドウを閉じる
-                    setTimeout(() => {
-                        liff.closeWindow();
-                    }, 1000);
-                })
-                .catch((err) => {
-                    console.error("メッセージ送信エラー", err);
-                    alert("メッセージの送信に
+         // LINEとの連携用 - メッセージを送信する関数
+    function sendToLine(formData) {
+        try {
+            liff.sendMessages([
+                {
+                    type: 'text',
+                    text: formData
+                }
+            ])
+            .then(() => {
+                console.log("メッセージ送信成功");
+                // フォームリセット
+                document.getElementById('meeting-form').reset();
+                document.getElementById('consult-form').reset();
+                
+                // 初期表示に戻す
+                document.getElementById('meeting-confirmation').style.display = 'none';
+                document.getElementById('support-form').classList.add('active');
+                document.getElementById('consult-notice').style.display = 'none';
+                document.getElementById('consultation-form').style.display = 'none';
+                
+                // タブとステートをリセット
+                currentTab = 'support';
+                consultationState = 'notice';
+                
+                alert("送信が完了しました。LINEに戻ります。");
+                
+                // LIFFウィンドウを閉じる
+                setTimeout(() => {
+                    liff.closeWindow();
+                }, 1000);
+            })
+            .catch((err) => {
+                console.error("メッセージ送信エラー", err);
+                alert("メッセージの送信に失敗しました: " + err.message);
+            });
+        } catch (e) {
+            console.error("LINE連携エラー:", e);
+            alert("LINE連携エラー: " + e.message);
+        }
+    }
+
+    // サポートミーティングフォーム送信処理
+    document.getElementById('meeting-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log("Meeting form submitted");
+        
+        // フォームデータの取得
+        const formData = {
+            type: 'サポートミーティング',
+            firstChoice: document.getElementById('first-choice').value,
+            secondChoice: document.getElementById('second-choice').value,
+            thirdChoice: document.getElementById('third-choice').value,
+            fourthChoice: document.getElementById('fourth-choice').value,
+            fifthChoice: document.getElementById('fifth-choice').value,
+            content: document.getElementById('meeting-content').value
+        };
+        
+        // 必須項目チェック
+        if (!formData.firstChoice || !formData.secondChoice || !formData.thirdChoice) {
+            alert("第1〜第3希望は必須項目です。日時を選択してください。");
+            return;
+        }
+        
+        // 確認画面に内容を表示
+        let summaryHTML = `
+            <div style="text-align: left; margin: 20px 0;">
+                <p><strong><i class="far fa-calendar-alt"></i> 第1希望:</strong> ${formData.firstChoice}</p>
+                <p><strong><i class="far fa-calendar-alt"></i> 第2希望:</strong> ${formData.secondChoice}</p>
+                <p><strong><i class="far fa-calendar-alt"></i> 第3希望:</strong> ${formData.thirdChoice}</p>
+        `;
+        
+        if (formData.fourthChoice) {
+            summaryHTML += `<p><strong><i class="far fa-calendar-alt"></i> 第4希望:</strong> ${formData.fourthChoice}</p>`;
+        }
+        
+        if (formData.fifthChoice) {
+            summaryHTML += `<p><strong><i class="far fa-calendar-alt"></i> 第5希望:</strong> ${formData.fifthChoice}</p>`;
+        }
+        
+        if (formData.content) {
+            summaryHTML += `<p><strong><i class="far fa-comment-alt"></i> 内容:</strong> ${formData.content}</p>`;
+        }
+        
+        summaryHTML += `</div>`;
+        
+        document.getElementById('meeting-summary').innerHTML = summaryHTML;
+        
+        // フォームを非表示、確認画面を表示
+        document.getElementById('support-form').classList.remove('active');
+        document.getElementById('meeting-confirmation').style.display = 'block';
+        document.getElementById('meeting-confirmation').classList.add('animated');
+        document.getElementById('meeting-confirmation').classList.add('slide-in');
+    });
+
+    // 確認ボタンクリック - フォーマットを修正
+    document.getElementById('meeting-confirm-btn').addEventListener('click', function() {
+        // フォームデータを取得
+        const formData = {
+            firstChoice: document.getElementById('first-choice').value,
+            secondChoice: document.getElementById('second-choice').value,
+            thirdChoice: document.getElementById('third-choice').value,
+            fourthChoice: document.getElementById('fourth-choice').value || "指定なし",
+            fifthChoice: document.getElementById('fifth-choice').value || "指定なし",
+            content: document.getElementById('meeting-content').value || "記入なし"
+        };
+        
+        // 送信するメッセージを作成
+        let message = `■サポートミーティング希望\n\n`;
+        message += `【第1希望】${formData.firstChoice}\n`;
+        message += `【第2希望】${formData.secondChoice}\n`;
+        message += `【第3希望】${formData.thirdChoice}\n`;
+        
+        if (formData.fourthChoice !== "指定なし") {
+            message += `【第4希望】${formData.fourthChoice}\n`;
+        }
+        
+        if (formData.fifthChoice !== "指定なし") {
+            message += `【第5希望】${formData.fifthChoice}\n`;
+        }
+        
+        if (formData.content !== "記入なし") {
+            message += `\n【内容】\n${formData.content}`;
+        }
+        
+        console.log("Sending message:", message);
+        // LINEにメッセージを送信
+        sendToLine(message);
+    });
+
+    // 相談依頼の「次へ進む」ボタン
+    document.getElementById('yes-btn').addEventListener('click', function() {
+    // 相談依頼の同意ページから相談依頼ページへ遷移
+        function switchToSupportRequest() {
+            window.location.href = 'support-request.html';
+        }
+        
+        switchToSupportRequest();
+    });
+
+    // 相談依頼フォームの「戻る」ボタン
+    document.getElementById('back-btn').addEventListener('click', function() {
+        document.getElementById('consultation-form').classList.remove('active');
+        document.getElementById('consult-notice').classList.add('active');
+        document.getElementById('consult-notice').classList.add('animated');
+        document.getElementById('consult-notice').classList.add('slide-in');
+        consultationState = 'notice';
+        console.log("Consultation state changed to notice");
+    });
+
+    // 相談依頼フォーム送信処理
+    document.getElementById('consult-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log("Consultation form submitted");
+        
+        // フォームデータの取得
+        const consultContent = document.getElementById('consult-content').value;
+        
+        // 必須項目チェック
+        if (!consultContent) {
+            alert("相談内容は必須項目です。");
+            return;
+        }
+        
+        // 送信するメッセージを作成
+        let message = `■相談依頼\n\n【相談内容】\n${consultContent}`;
+        
+        // LINEにメッセージを送信
+        sendToLine(message);
+    });
+
+    // デバイスに基づく追加最適化
+    function optimizeForDevice() {
+        const isMobile = window.innerWidth <= 480;
+        
+        if (isMobile) {
+            // iOS対応のズーム防止
+            const viewportMeta = document.querySelector('meta[name="viewport"]');
+            if (viewportMeta) {
+                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            }
+            
+            // 入力フィールドのフォントサイズを16px以上に設定（iOS自動ズーム防止）
+            const inputs = document.querySelectorAll('input[type="text"], textarea, select');
+            inputs.forEach(input => {
+                input.style.fontSize = '16px';
+            });
+        }
+    }
+    
+    // デバイス最適化を実行
+    optimizeForDevice();
+    
+    // リサイズ時にも最適化を再適用
+    window.addEventListener('resize', optimizeForDevice);
+    
+    // デバッグ用のコンソールログ
+    console.log("Script loaded. Current tab:", currentTab, "Consultation state:", consultationState);
+});
+    </script>
+</body>
+</html>
