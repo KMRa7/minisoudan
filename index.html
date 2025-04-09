@@ -516,6 +516,29 @@
       margin-bottom: 0;
       font-weight: 500;
     }
+
+    .date-display {
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--dark);
+      z-index: 2;
+    }
+
+input[type="datetime-local"] {
+  color: transparent;
+  background-color: white;
+}
+
+input[type="datetime-local"]:focus + .date-display {
+  display: none;
+}
+
+input[type="datetime-local"]:focus {
+  color: var(--dark);
+}
     
     /* 日付入力フォーマット変更のためのJavaScript追加 */
     input[type="datetime-local"] {
