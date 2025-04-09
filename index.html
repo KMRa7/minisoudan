@@ -1,192 +1,797 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>サポートフォーム</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    .section { display: none; margin-top: 20px; }
-    .visible { display: block; }
-    label { display: block; margin-top: 10px; }
-    select, input, textarea { width: 100%; padding: 5px; margin-top: 5px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>サポートフォーム</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Flatpickr (日付時間ピッカー) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/themes/material_blue.min.css">
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        :root {
+            --primary: #00C300;
+            --primary-dark: #00a500;
+            --primary-light: #e6f7e6;
+            --accent: #007bff;
+            --text: #333333;
+            --text-light: #6c757d;
+            --border: #e5e5e5;
+            --danger: #dc3545;
+            --success: #28a745;
+            --neutral: #f8f9fa;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', Meiryo, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-text-size-adjust: 100%;
+            font-size: 16px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), #2AC1BC);
+            color: white;
+            padding: 22px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            background-color: white;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 18px 15px;
+            font-size: 15px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab-button i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+        }
+        
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 3px 3px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .form-section {
+            display: none;
+            padding: 30px 25px;
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .form-section.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+        
+        .form-group {
+            margin-bottom: 28px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        
+        .required:after {
+            content: " *";
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            box-shadow: 0 2px 5px var(--shadow);
+            background-color: white;
+        }
+        
+        .date-time-input {
+            position: relative;
+        }
+        
+        .date-time-input input {
+            padding-right: 46px;
+            background-color: white;
+        }
+        
+        .date-time-input i {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+            font-size: 18px;
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 195, 0, 0.15);
+        }
+        
+        textarea {
+            height: 160px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), #2AC1BC);
+            color: white;
+            border: none;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 195, 0, 0.25);
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #259d99);
+            box-shadow: 0 6px 16px rgba(0, 195, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 195, 0, 0.2);
+        }
+        
+        .confirmation {
+            display: none;
+            padding: 30px 25px;
+            animation: fadeIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        #meeting-summary {
+            background-color: var(--primary-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .confirm-btn {
+            background: linear-gradient(135deg, var(--primary), #2AC1BC);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 195, 0, 0.25);
+        }
+        
+        .confirm-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #259d99);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 195, 0, 0.3);
+        }
+        
+        .notice {
+            display: none;
+            padding: 30px 25px;
+            animation: fadeIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .notice-btns {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .yes-btn, .back-btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 160px;
+        }
+        
+        .yes-btn {
+            background: linear-gradient(135deg, var(--primary), #2AC1BC);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 195, 0, 0.25);
+        }
+        
+        .yes-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #259d99);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 195, 0, 0.3);
+        }
+        
+        .back-btn {
+            background-color: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        
+        .back-btn:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--shadow);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .submit-btn.inline {
+            margin-top: 0;
+            flex: 1;
+        }
+        
+        .back-btn.inline {
+            margin-top: 0;
+            flex: 1;
+            width: auto;
+        }
+        
+        .required-note {
+            margin-bottom: 22px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            background-color: rgba(0, 0, 0, 0.02);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .required-note span {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-top: 3px solid var(--primary);
+        }
+        
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 15px 0;
+        }
+        
+        ul li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 12px;
+        }
+        
+        ul li:before {
+            content: "\f00c";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        
+        .alert {
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-warning {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        
+        .alert i {
+            margin-top: 4px;
+        }
+        
+        .flatpickr-calendar {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+            border-radius: 12px !important;
+            border: none !important;
+            overflow: hidden;
+        }
+        
+        .flatpickr-day.selected {
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+        
+        .flatpickr-day:hover {
+            background: rgba(0, 195, 0, 0.1) !important;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .time-slot {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            box-shadow: 0 2px 6px var(--shadow);
+        }
+        
+        .time-slot:hover {
+            border-color: var(--primary);
+            background-color: rgba(0, 195, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .time-slot.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(0, 195, 0, 0.25);
+        }
+        
+        /* モバイル最適化 */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                max-width: 100%;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                box-shadow: none;
+            }
+            
+            .form-section, .confirmation, .notice {
+                flex: 1;
+                overflow-y: auto;
+                padding: 25px 20px;
+            }
+            
+            .header {
+                padding: 18px 0;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            
+            .tab-buttons {
+                position: sticky;
+                top: 60px;
+                z-index: 100;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .back-btn.inline, .submit-btn.inline {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>サポートフォーム</h2>
+    <div class="container">
+        <div class="header">
+            <h1>サポートフォーム</h1>
+        </div>
+        
+        <div class="tab-buttons">
+            <button class="tab-button active" id="support-btn">
+                <i class="fas fa-calendar-check"></i>
+                <span>サポートミーティング</span>
+            </button>
+            <button class="tab-button" id="consultation-btn">
+                <i class="fas fa-comments"></i>
+                <span>相談依頼</span>
+            </button>
+        </div>
 
-  <label for="mode">モードを選択：</label>
-  <select id="mode">
-    <option value="予約">サポートMTG予約</option>
-    <option value="相談">相談依頼</option>
-  </select>
+        <!-- サポートミーティングフォーム -->
+        <div class="form-section active" id="support-form">
+            <h2>サポートミーティング希望</h2>
+            <p>ご希望の日時を選択してください</p>
+            
+            <div class="required-note">
+                <span>*</span> は必須項目です。第1〜第3希望は必ずご入力ください。
+            </div>
+            
+            <form id="meeting-form">
+                <div class="form-group">
+                    <label class="required" for="first-choice">第1希望</label>
+                    <div class="date-time-input">
+                        <input type="text" id="first-choice" placeholder="日付と時間を選択" required readonly>
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required" for="second-choice">第2希望</label>
+                    <div class="date-time-input">
+                        <input type="text" id="second-choice" placeholder="日付と時間を選択" required readonly>
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required" for="third-choice">第3希望</label>
+                    <div class="date-time-input">
+                        <input type="text" id="third-choice" placeholder="日付と時間を選択" required readonly>
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fourth-choice">第4希望（任意）</label>
+                    <div class="date-time-input">
+                        <input type="text" id="fourth-choice" placeholder="日付と時間を選択" readonly>
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fifth-choice">第5希望（任意）</label>
+                    <div class="date-time-input">
+                        <input type="text" id="fifth-choice" placeholder="日付と時間を選択" readonly>
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="meeting-content">内容（任意）</label>
+                    <textarea id="meeting-content" placeholder="ミーティングで相談したい内容をご記入ください"></textarea>
+                </div>
+                
+                <button type="submit" class="btn submit-btn"><i class="fas fa-paper-plane"></i> 送信する</button>
+            </form>
+        </div>
 
-  <!-- 予約 -->
-  <div id="予約" class="section visible">
-    <label>予約希望日時：</label>
-    <div id="reserveList">
-      <input type="datetime-local" class="reserveDate" />
+        <!-- 相談依頼注意事項（最初に表示） -->
+        <div class="form-section" id="consult-notice">
+            <h2>相談依頼の注意事項</h2>
+            
+            <div class="card">
+                <p>相談依頼は下記の方向けのフォームです：</p>
+                <ul>
+                    <li>サポートミーティングを受ける時間がない方</li>
+                    <li>サポートミーティングの必要がない方</li>
+                </ul>
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>重要：</strong> 相談依頼をご利用いただいた月は、サポートミーティングおよび相談依頼は実施できません。
+                </div>
+            </div>
+            
+            <p>ご依頼内容によりますが、すべての情報が揃ってから最低<strong>4営業日</strong>いただきます。</p>
+            <p>上記ご了承いただける場合は「次へ進む」を押してください。</p>
+            
+            <div class="notice-btns">
+                <button class="yes-btn" id="yes-btn"><i class="fas fa-check"></i> 次へ進む</button>
+            </div>
+        </div>
+
+        <!-- 相談依頼フォーム -->
+        <div class="form-section" id="consultation-form">
+            <h2>相談依頼</h2>
+            <p>相談内容をご記入ください</p>
+            
+            <form id="consult-form">
+                <div class="form-group">
+                    <label class="required" for="consult-content">相談内容</label>
+                    <textarea id="consult-content" required placeholder="ご相談内容を詳しくお書きください"></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="button" class="back-btn inline" id="back-btn"><i class="fas fa-arrow-left"></i> 戻る</button>
+                    <button type="submit" class="btn submit-btn inline"><i class="fas fa-paper-plane"></i> 送信する</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- サポートミーティング確認画面 -->
+        <div class="confirmation" id="meeting-confirmation">
+            <h2><i class="fas fa-check-circle"></i> 確認画面</h2>
+            <p>以下の内容でよろしければ「送信する」ボタンを押してください。</p>
+            
+            <div id="meeting-summary"></div>
+            
+            <p>内容確認後、担当者からご連絡させていただきます。</p>
+            <p>予定が埋まっている場合はご希望に添えない場合もございますので、ご了承ください。</p>
+            
+            <div style="text-align: center; margin-top: 25px;">
+                <button class="btn confirm-btn" id="meeting-confirm-btn"><i class="fas fa-check"></i> 送信する</button>
+            </div>
+        </div>
     </div>
-    <button type="button" onclick="addReserve()">＋追加</button>
-  </div>
 
-  <!-- 相談依頼 -->
-  <div id="相談" class="section">
-    <label>相談内容の種類：</label>
-    <select id="consultType">
-      <option value="">選択してください</option>
-      <option value="リッチメニュー">リッチメニュー</option>
-      <option value="クーポン">クーポン</option>
-      <option value="メニュー追加・変更">メニュー追加・変更</option>
-      <option value="その他">その他</option>
-      <option value="配信代行依頼">配信代行依頼</option>
-    </select>
+    <!-- Flatpickrスクリプト -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/ja.min.js"></script>
 
-    <!-- リッチメニュー -->
-    <div id="リッチメニュー" class="section">
-      <label>目的：</label>
-      <select id="rmPurpose">
-        <option value="新規作成">新規作成</option>
-        <option value="デザイン変更（ボタン追加）">デザイン変更（ボタン追加）</option>
-        <option value="デザイン変更（ボタン変更）">デザイン変更（ボタン変更）</option>
-      </select>
-      <label>内容：</label>
-      <textarea id="rmDetail"></textarea>
-    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // タブの状態を保存する変数
+        let currentTab = 'support'; // デフォルトはサポートミーティング
+        let consultationState = 'notice'; // 相談依頼の初期状態は注意事項
+        
+        // LIFFの初期化
+        try {
+            liff.init({
+                liffId: "2007077943-Qz5kL7mm"
+            })
+            .then(() => {
+                console.log("LIFF initialized!");
+            })
+            .catch((err) => {
+                console.error("LIFF initialization failed", err);
+                alert("LINEの初期化に失敗しました。ページを再読み込みしてください。");
+            });
+        } catch (e) {
+            console.log("LIFF初期化エラー:", e);
+        }
+        
+        // 日時の選択用データ - 時間スロットを30分単位で定義
+        const timeSlots = ["9:00", "9:30", "10:00", "10:30", "11:00", "11:30", 
+                        "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+                        "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
+        
+        // 全てのフォームセクションを非表示にする関数
+        function hideAllFormSections() {
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('meeting-confirmation').style.display = 'none';
+        }
 
-    <!-- クーポン -->
-    <div id="クーポン" class="section">
-      <label>クーポンの種類：</label>
-      <input type="text" id="couponKind" />
-      <label>クーポン名：</label>
-      <input type="text" id="couponName" />
-      <label>有効期間：</label>
-      <input type="text" id="couponPeriod" placeholder="例：2025年1月1日～2025年2月1日" />
-      <label>利用ガイド：</label>
-      <textarea id="couponGuide"></textarea>
-      <label>利用可能数：</label>
-      <select id="couponCount">
-        <option value="1回のみ">1回のみ</option>
-        <option value="無制限">無制限</option>
-      </select>
-      <label>利用方法：</label>
-      <textarea id="couponUse"></textarea>
-    </div>
+        // タブ切り替え処理 - イベントハンドラをクリアして再定義
+        document.getElementById('support-btn').addEventListener('click', function() {
+            console.log("Support tab clicked, current tab:", currentTab);
+            if (currentTab === 'support') return; // すでにアクティブなら何もしない
+            
+            // サポートミーティングタブをアクティブに
+            document.getElementById('support-btn').classList.add('active');
+            document.getElementById('consultation-btn').classList.remove('active');
+            
+            // フォームの表示切り替え
+            hideAllFormSections();
+            document.getElementById('support-form').classList.add('active');
+            
+            // 現在のタブを更新
+            currentTab = 'support';
+            console.log("Tab changed to support");
+        });
 
-    <!-- メニュー -->
-    <div id="メニュー追加・変更" class="section">
-      <label>操作：</label>
-      <select id="menuAction">
-        <option value="追加">追加</option>
-        <option value="変更">変更</option>
-        <option value="削除">削除</option>
-      </select>
-      <label>内容：</label>
-      <textarea id="menuDetail"></textarea>
-    </div>
-
-    <!-- その他 -->
-    <div id="その他" class="section">
-      <label>内容：</label>
-      <textarea id="otherDetail"></textarea>
-    </div>
-
-    <!-- 配信代行依頼 -->
-    <div id="配信代行依頼" class="section">
-      <label>配信日時：</label>
-      <input type="datetime-local" id="sendDatetime" />
-      <label>配信内容：</label>
-      <textarea id="sendContent"></textarea>
-      <label>備考：</label>
-      <textarea id="sendNote"></textarea>
-    </div>
-  </div>
-
-  <button onclick="submitForm()">送信</button>
-
-  <script>
-  const modeSelect = document.getElementById("mode");
-  const consultType = document.getElementById("consultType");
-
-  modeSelect.addEventListener("change", () => {
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
-    document.getElementById(modeSelect.value).classList.add("visible");
-  });
-
-  consultType.addEventListener("change", () => {
-    document.querySelectorAll("#相談 .section").forEach(s => s.classList.remove("visible"));
-    const selected = consultType.value;
-    if (selected) {
-      document.getElementById(selected).classList.add("visible");
-    }
-  });
-
-  async function submitForm() {
-    await liff.init({ liffId: "2007228552-OdkKEe6Y" });
-    const profile = await liff.getProfile();
-    const context = liff.getContext(); // ← ここで userId を取得
-    console.log("context.userId:", context.userId);
-
-    const data = {
-      name: profile.displayName,
-      userId: context.userId, // ← ここが重要！
-      type: modeSelect.value === "予約" ? "サポートMTG予約" : consultType.value,
-    };
-
-    if (modeSelect.value === "予約") {
-      const reserveInputs = document.querySelectorAll(".reserveDate");
-      data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
-    } else {
-      const type = consultType.value;
-      if (type === "リッチメニュー") {
-        data.purpose = document.getElementById("rmPurpose").value;
-        data.detail = document.getElementById("rmDetail").value;
-      } else if (type === "クーポン") {
-        data.kind = document.getElementById("couponKind").value;
-        data.name = document.getElementById("couponName").value;
-        data.period = document.getElementById("couponPeriod").value;
-        data.guide = document.getElementById("couponGuide").value;
-        data.count = document.getElementById("couponCount").value;
-        data.use = document.getElementById("couponUse").value;
-      } else if (type === "メニュー追加・変更") {
-        data.action = document.getElementById("menuAction").value;
-        data.detail = document.getElementById("menuDetail").value;
-      } else if (type === "その他") {
-        data.detail = document.getElementById("otherDetail").value;
-      } else if (type === "配信代行依頼") {
-        data.datetime = document.getElementById("sendDatetime").value;
-        data.content = document.getElementById("sendContent").value;
-        data.note = document.getElementById("sendNote").value;
-      }
-    }
-
-    console.log("送信データ:", data);
-
-    // GASへ送信
-    fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-      mode: "no-cors", // ← 超重要！
-    });
-
-    alert("送信しました！");
-  }
-
-  function addReserve() {
-    const container = document.getElementById("reserveList");
-    const count = container.querySelectorAll(".reserveDate").length;
-    if (count >= 5) {
-      alert("最大5件まで登録できます");
-      return;
-    }
-    const input = document.createElement("input");
-    input.type = "datetime-local";
-    input.className = "reserveDate";
-    container.appendChild(input);
-  }
-  </script>
-</body>
-</html>
+        document.getElementById('consultation-btn').addEventListener('click', function() {
+            console.log("Consultation tab clicked, current tab:", currentTab);
+            if (currentTab === 'consultation') return; // すでにアクティブなら何もしない
+            
+            // 相談依頼タブをアクティブに
+            document.getElementById('consultation-btn').classList.add('active');
+            document.getElementById('support-btn').classList.remove('active');
+            
+            // フォームの表示切り替え
+            hideAllFormSections();
+            
+            // 保存されたステートに基づいて適切なフォームを表示
+            if (consultationState === 'notice') {
+                document.getElementById('consult-notice').classList.add('active');
+            } else {
+                document.getElementById('consultation-form').classList.add('active');
+            }
+            
+            // 現在のタブを更新
+            currentTab = 'consultation';
+            console.log("Tab changed to consultation");
+        });
+        
+        // Flatpickrの設定オプション - 日本語化と時間も同時に選択できるように
+        const datePickerOptions = {
+            locale: 'ja',
+            enableTime: true,
+            dateFormat: 'Y年m月d日 H:i',
+            minDate: "today",
+            disableMobile: true,
+            time_24hr: true,
+            minuteIncrement: 30,
+            minTime: "09:00",
+            maxTime: "17:30",
+            disable: [
+                function(date) {
+                    return (date.getDay() === 0 || date.getDay() === 6);
+                }
+            ],
+            onOpen: function(selectedDates, dateStr, instance) {
+                console.log("Flatpickr opened for:", instance.element.id);
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                console.log("Selected date:", dateStr, "for input:", instance.element.id);
+            }
+        };
+        
+        // 日付選択のセットアップ
+        const dateInputs = ['first-choice', 'second-choice', 'third-choice', 'fourth-choice', 'fifth-choice'];
+        dateInputs.forEach(id => {
+            flatpickr(`#${id}`, datePickerOptions);
+        });
+        
+        // LINEとの連携用 - メッセージを送信する関数
+        function sendToLine(formData) {
+            try {
+                liff.sendMessages([
+                    {
+                        type: 'text',
+                        text: formData
+                    }
+                ])
+                .then(() => {
+                    console.log("メッセージ送信成功");
+                    // フォームリセット
+                    document.getElementById('meeting-form').reset();
+                    document.getElementById('consult-form').reset();
+                    
+                    // 初期表示に戻す
+                    document.getElementById('meeting-confirmation').style.display = 'none';
+                    document.getElementById('support-form').classList.add('active');
+                    document.getElementById('consult-notice').style.display = 'none';
+                    document.getElementById('consultation-form').style.display = 'none';
+                    
+                    // タブとステートをリセット
+                    currentTab = 'support';
+                    consultationState = 'notice';
+                    
+                    alert("送信が完了しました。LINEに戻ります。");
+                    
+                    // LIFFウィンドウを閉じる
+                    setTimeout(() => {
+                        liff.closeWindow();
+                    }, 1000);
+                })
+                .catch((err) => {
+                    console.error("メッセージ送信エラー", err);
+                    alert("メッセージの送信に
