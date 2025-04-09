@@ -869,6 +869,14 @@ input[type="datetime-local"]:focus {
   if (agreeCheck) {
     agreeCheck.addEventListener('change', function() {
       console.log('チェックボックス状態:', this.checked);
+      // チェックボックスのスタイルを変更して状態を視覚的に示す
+      if (this.checked) {
+        this.parentNode.style.backgroundColor = '#E6F4EA';
+        this.parentNode.style.borderLeft = '3px solid #06C755';
+      } else {
+        this.parentNode.style.backgroundColor = 'white';
+        this.parentNode.style.borderLeft = 'none';
+      }
     });
   }
   
@@ -880,6 +888,20 @@ input[type="datetime-local"]:focus {
       submitForm(); // カスタム送信関数を呼び出し
     });
   }
+
+  // 相談タブ選択時にチェックボックスをリセット
+  const consultTab = document.querySelector('.mode-tab[data-mode="相談"]');
+  if (consultTab) {
+    consultTab.addEventListener('click', function() {
+      const agreeCheck = document.getElementById('agreeCheck');
+      if (agreeCheck) {
+        agreeCheck.checked = false;
+        agreeCheck.parentNode.style.backgroundColor = 'white';
+        agreeCheck.parentNode.style.borderLeft = 'none';
+      }
+    });
+  }
+    
 });
 
 // 日時フォーマット変更のための関数
@@ -945,19 +967,37 @@ function addOptionalDate() {
   });
 }
 
+// チェックボックスの状態を確認する関数
+function validateConsultForm() {
+  const modeSelect = document.getElementById("mode");
+  const consultType = document.getElementById("consultType");
+  
+  // 相談モードの時のみチェックボックスを検証
+  if (modeSelect.value === "相談") {
+    const agreeCheck = document.getElementById('agreeCheck');
+    if (!agreeCheck.checked) {
+      alert('注意事項への同意が必要です');
+      return false;
+    }
+    
+    // 相談タイプが選択されているか確認
+    if (!consultType.value) {
+      alert('相談内容の種類を選択してください');
+      return false;
+    }
+  }
+  return true;
+}
+
+// 送信関数を修正
 async function submitForm() {
   try {
     const modeSelect = document.getElementById("mode");
     const consultType = document.getElementById("consultType");
     
-    // 相談モードのチェック
-    if (modeSelect.value === "相談") {
-      const agreeCheck = document.getElementById('agreeCheck');
-      // チェックボックスの状態を明示的に確認
-      if (!agreeCheck || !agreeCheck.checked) {
-        alert('注意事項への同意が必要です');
-        return;
-      }
+    // フォームバリデーション
+    if (!validateConsultForm()) {
+      return; // バリデーション失敗時は処理を中断
     }
     
     // ローディング表示
