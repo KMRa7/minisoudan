@@ -815,6 +815,7 @@ input[type="datetime-local"]:focus {
   </div>
 
   <script>
+  document.addEventListener('DOMContentLoaded', function() {
   const modeSelect = document.getElementById("mode");
   const consultType = document.getElementById("consultType");
   const loadingEl = document.getElementById("loading");
@@ -825,243 +826,245 @@ input[type="datetime-local"]:focus {
   // タブ切り替え
   modeTabs.forEach(tab => {
     tab.addEventListener("click", () => {
+      // 全てのタブから active クラスを削除
       modeTabs.forEach(t => t.classList.remove("active"));
+      // クリックされたタブに active クラスを追加
       tab.classList.add("active");
       
       const mode = tab.dataset.mode;
       modeSelect.value = mode;
       
-      // トリガーmodeSelectのchange event
-      const event = new Event('change');
-      modeSelect.dispatchEvent(event);
+      // セクションの表示切り替え
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+      document.getElementById(mode).classList.add("visible");
     });
   });
 
-  modeSelect.addEventListener("change", () => {
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
-    document.getElementById(modeSelect.value).classList.add("visible");
-    
-    // タブの選択状態を更新
-    modeTabs.forEach(tab => {
-      if (tab.dataset.mode === modeSelect.value) {
-        tab.classList.add("active");
-      } else {
-        tab.classList.remove("active");
+  // 相談タイプが変更されたときの処理
+  if (consultType) {
+    consultType.addEventListener("change", () => {
+      document.querySelectorAll("#相談 .section").forEach(s => s.classList.remove("visible"));
+      const selected = consultType.value;
+      if (selected) {
+        document.getElementById(selected).classList.add("visible");
       }
     });
-  });
+  }
 
-  consultType.addEventListener("change", () => {
-    document.querySelectorAll("#相談 .section").forEach(s => s.classList.remove("visible"));
-    const selected = consultType.value;
-    if (selected) {
-      document.getElementById(selected).classList.add("visible");
+  // 日時フォーマット変更のための処理
+  const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
+  dateInputs.forEach(input => {
+    input.addEventListener('change', function() {
+      formatJapaneseDate(this);
+    });
+    
+    // 初期値がある場合にも適用
+    if (input.value) {
+      formatJapaneseDate(input);
     }
   });
-
-  // 日時フォーマット変更のための関数
-  function formatJapaneseDate(dateInput) {
-    if (!dateInput.value) return;
-    
-    const date = new Date(dateInput.value);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    // 元の値を保持する属性
-    dateInput.setAttribute('data-original-value', dateInput.value);
-    
-    // 表示用のラベルを作成して挿入
-    const displayFormat = `${year}年${month}月${day}日 ${hours}:${minutes}`;
-    const displayLabel = document.createElement('div');
-    displayLabel.className = 'date-display';
-    displayLabel.textContent = displayFormat;
-    
-    // ラベル位置を調整
-    dateInput.parentNode.style.position = 'relative';
-    dateInput.style.color = 'transparent';
-    
-    // 既存のラベルを削除
-    const oldLabel = dateInput.parentNode.querySelector('.date-display');
-    if (oldLabel) {
-      dateInput.parentNode.removeChild(oldLabel);
-    }
-    
-    dateInput.parentNode.appendChild(displayLabel);
+  
+  // チェックボックスの動作確認
+  const agreeCheck = document.getElementById('agreeCheck');
+  if (agreeCheck) {
+    agreeCheck.addEventListener('change', function() {
+      console.log('チェックボックス状態:', this.checked);
+    });
   }
   
-  // すべての日時入力にイベントリスナーを追加
-  document.addEventListener('DOMContentLoaded', function() {
-    const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
-    dateInputs.forEach(input => {
-      input.addEventListener('change', function() {
-        formatJapaneseDate(this);
-      });
-      
-      // 初期値がある場合にも適用
-      if (input.value) {
-        formatJapaneseDate(input);
-      }
-    });
-    
-    // フォーム送信時の検証
-    const submitBtn = document.querySelector('.submit-btn');
-    submitBtn.addEventListener('click', function(e) {
-      // 相談モードのときは同意チェックを検証
-      if (modeSelect.value === "相談") {
-        const agreeCheck = document.getElementById('agreeCheck');
-        if (!agreeCheck.checked) {
-          e.preventDefault();
-          alert('注意事項への同意が必要です');
-          return false;
-        }
-      }
-    });
-
-    // チェックボックスの動作確認
-    const agreeCheck = document.getElementById('agreeCheck');
-    if (agreeCheck) {
-      agreeCheck.addEventListener('change', function() {
-        console.log('チェックボックス状態:', this.checked);
-      });
-    }
-    
-    // submitボタンのイベントリスナーを一元化
-    const submitBtn = document.querySelector('.submit-btn');
+  // submitボタンのイベントリスナー
+  const submitBtn = document.querySelector('.submit-btn');
+  if (submitBtn) {
     submitBtn.addEventListener('click', function(e) {
       e.preventDefault(); // フォームのデフォルト送信を防止
       submitForm(); // カスタム送信関数を呼び出し
     });
+  }
+});
+
+// 日時フォーマット変更のための関数
+function formatJapaneseDate(dateInput) {
+  if (!dateInput.value) return;
+  
+  const date = new Date(dateInput.value);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  
+  // 元の値を保持する属性
+  dateInput.setAttribute('data-original-value', dateInput.value);
+  
+  // 表示用のラベルを作成して挿入
+  const displayFormat = `${year}年${month}月${day}日 ${hours}:${minutes}`;
+  const displayLabel = document.createElement('div');
+  displayLabel.className = 'date-display';
+  displayLabel.textContent = displayFormat;
+  
+  // ラベル位置を調整
+  dateInput.parentNode.style.position = 'relative';
+  dateInput.style.color = 'transparent';
+  
+  // 既存のラベルを削除
+  const oldLabel = dateInput.parentNode.querySelector('.date-display');
+  if (oldLabel) {
+    dateInput.parentNode.removeChild(oldLabel);
+  }
+  
+  dateInput.parentNode.appendChild(displayLabel);
+}
+
+// 追加の日付入力用の関数
+function addOptionalDate() {
+  const container = document.getElementById("optionalDates");
+  const dateCount = container.querySelectorAll(".date-input").length;
+  
+  if (dateCount >= 2) {
+    alert("追加の希望日時は最大2つまで登録できます");
+    return;
+  }
+  
+  const dateNum = dateCount + 4; // 第4希望、第5希望
+  
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = `
+    <div class="date-label">第${dateNum}希望（任意）</div>
+    <div class="date-input">
+      <input type="datetime-local" class="reserveDate" />
+      <button type="button" class="remove-date" onclick="this.parentNode.parentNode.remove()">×</button>
+    </div>
+  `;
+  
+  container.appendChild(wrapper);
+  
+  // 新しく追加した入力欄にもイベントリスナーを追加
+  const newInput = wrapper.querySelector('input[type="datetime-local"]');
+  newInput.addEventListener('change', function() {
+    formatJapaneseDate(this);
+  });
+}
+
+async function submitForm() {
+  try {
+    const modeSelect = document.getElementById("mode");
+    const consultType = document.getElementById("consultType");
+    
+    // 相談モードのチェック
+    if (modeSelect.value === "相談") {
+      const agreeCheck = document.getElementById('agreeCheck');
+      // チェックボックスの状態を明示的に確認
+      if (!agreeCheck || !agreeCheck.checked) {
+        alert('注意事項への同意が必要です');
+        return;
+      }
+    }
+    
+    // ローディング表示
+    document.getElementById('loading').style.display = 'block';
+    document.querySelector(".form-container").style.display = 'none';
+    
+    await liff.init({ liffId: "2007228552-OdkKEe6Y" });
+    const profile = await liff.getProfile();
+    const context = liff.getContext();
+    console.log("context.userId:", context.userId);
+
+    const data = {
+      name: profile.displayName,
+      userId: context.userId,
+      type: modeSelect.value === "予約" ? "サポートMTG予約" : consultType.value,
+    };
+
+    if (modeSelect.value === "予約") {
+      const reserveInputs = document.querySelectorAll(".reserveDate");
+      data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
+    } else {
+      const type = consultType.value;
+      if (type === "リッチメニュー") {
+        data.purpose = document.getElementById("rmPurpose").value;
+        data.detail = document.getElementById("rmDetail").value;
+      } else if (type === "クーポン") {
+        data.kind = document.getElementById("couponKind").value;
+        data.name = document.getElementById("couponName").value;
+        data.period = document.getElementById("couponPeriod").value;
+        data.guide = document.getElementById("couponGuide").value;
+        data.count = document.getElementById("couponCount").value;
+        data.use = document.getElementById("couponUse").value;
+      } else if (type === "メニュー追加・変更") {
+        data.action = document.getElementById("menuAction").value;
+        data.detail = document.getElementById("menuDetail").value;
+      } else if (type === "その他") {
+        data.detail = document.getElementById("otherDetail").value;
+      } else if (type === "配信代行依頼") {
+        data.datetime = document.getElementById("sendDatetime").value;
+        data.content = document.getElementById("sendContent").value;
+        data.note = document.getElementById("sendNote").value;
+      }
+    }
+
+    console.log("送信データ:", data);
+
+    // GASへ送信
+    await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      mode: "no-cors",
+    });
+
+    // 送信完了メッセージを表示
+    alert("送信しました！");
+    
+    // LIFFウィンドウを閉じる
+    if (liff.isInClient()) {
+      liff.closeWindow();
+    } else {
+      // ブラウザで開いている場合は成功画面を表示
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('success').style.display = 'block';
+    }
+  } catch (error) {
+    console.error("エラーが発生しました:", error);
+    alert("送信中にエラーが発生しました。もう一度お試しください。");
+    document.getElementById('loading').style.display = 'none';
+    document.querySelector(".form-container").style.display = 'block';
+  }
+}
+
+function resetForm() {
+  // フォームをリセットして初期表示に戻す
+  document.getElementById('success').style.display = 'none';
+  document.querySelector(".form-container").style.display = 'block';
+  
+  // 入力フィールドをクリア
+  const inputs = document.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    if (input.type === 'checkbox') {
+      input.checked = false;
+    } else {
+      input.value = '';
+    }
   });
   
-  // 追加の日付入力用の関数を修正
-  function addOptionalDate() {
-    const container = document.getElementById("optionalDates");
-    const dateCount = container.querySelectorAll(".date-input").length;
-    
-    if (dateCount >= 2) {
-      alert("追加の希望日時は最大2つまで登録できます");
-      return;
+  // 最初のタブを選択状態にする
+  const modeTabs = document.querySelectorAll(".mode-tab");
+  modeTabs.forEach((tab, index) => {
+    if (index === 0) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
     }
-    
-    const dateNum = dateCount + 4; // 第4希望、第5希望
-    
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = `
-      <div class="date-label">第${dateNum}希望（任意）</div>
-      <div class="date-input">
-        <input type="datetime-local" class="reserveDate" />
-        <button type="button" class="remove-date" onclick="this.parentNode.parentNode.remove()">×</button>
-      </div>
-    `;
-    
-    container.appendChild(wrapper);
-    
-    // 新しく追加した入力欄にもイベントリスナーを追加
-    const newInput = wrapper.querySelector('input[type="datetime-local"]');
-    newInput.addEventListener('change', function() {
-      formatJapaneseDate(this);
-    });
-  }
+  });
   
-  async function submitForm() {
-    try {
-      // 相談モードのチェック
-      if (modeSelect.value === "相談") {
-        const agreeCheck = document.getElementById('agreeCheck');
-        // チェックボックスの状態を明示的に確認
-        if (!agreeCheck || !agreeCheck.checked) {
-          alert('注意事項への同意が必要です');
-          return;
-        }
-      }
-      // ローディング表示
-      document.getElementById('loading').style.display = 'block';
-      formContainer.style.display = 'none';
-      
-      await liff.init({ liffId: "2007228552-OdkKEe6Y" });
-      const profile = await liff.getProfile();
-      const context = liff.getContext();
-      console.log("context.userId:", context.userId);
+  // 最初のセクションを表示
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+  document.getElementById("予約").classList.add("visible");
   
-      const data = {
-        name: profile.displayName,
-        userId: context.userId,
-        type: modeSelect.value === "予約" ? "サポートMTG予約" : consultType.value,
-      };
-  
-      if (modeSelect.value === "予約") {
-        const reserveInputs = document.querySelectorAll(".reserveDate");
-        data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
-      } else {
-        const type = consultType.value;
-        if (type === "リッチメニュー") {
-          data.purpose = document.getElementById("rmPurpose").value;
-          data.detail = document.getElementById("rmDetail").value;
-        } else if (type === "クーポン") {
-          data.kind = document.getElementById("couponKind").value;
-          data.name = document.getElementById("couponName").value;
-          data.period = document.getElementById("couponPeriod").value;
-          data.guide = document.getElementById("couponGuide").value;
-          data.count = document.getElementById("couponCount").value;
-          data.use = document.getElementById("couponUse").value;
-        } else if (type === "メニュー追加・変更") {
-          data.action = document.getElementById("menuAction").value;
-          data.detail = document.getElementById("menuDetail").value;
-        } else if (type === "その他") {
-          data.detail = document.getElementById("otherDetail").value;
-        } else if (type === "配信代行依頼") {
-          data.datetime = document.getElementById("sendDatetime").value;
-          data.content = document.getElementById("sendContent").value;
-          data.note = document.getElementById("sendNote").value;
-        }
-      }
-  
-      console.log("送信データ:", data);
-  
-      // GASへ送信
-      await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        mode: "no-cors",
-      });
-  
-      // 送信完了メッセージを表示
-      alert("送信しました！");
-      
-      // LIFFウィンドウを閉じる
-      if (liff.isInClient()) {
-        liff.closeWindow();
-      } else {
-        // ブラウザで開いている場合は成功画面を表示
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('success').style.display = 'block';
-      }
-    } catch (error) {
-      console.error("エラーが発生しました:", error);
-      alert("送信中にエラーが発生しました。もう一度お試しください。");
-      document.getElementById('loading').style.display = 'none';
-      formContainer.style.display = 'block';
-    }
-  }
-
-  function addReserve() {
-    const container = document.getElementById("reserveList");
-    const count = container.querySelectorAll(".reserveDate").length;
-    if (count >= 5) {
-      alert("最大5件まで登録できます");
-      return;
-    }
-    const input = document.createElement("input");
-    input.type = "datetime-local";
-    input.className = "reserveDate";
-    container.appendChild(input);
-  }
+  // 追加された日付入力欄をクリア
+  document.getElementById("optionalDates").innerHTML = '';
+}
   </script>
 </body>
 </html>
