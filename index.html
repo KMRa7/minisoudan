@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>相談依頼フォーム</title>
+  <meta charset="UTF-8">
+  <title>サポートフォーム</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 16px; }
-    .field { margin-bottom: 12px; }
-    .hidden { display: none; }
+    body { font-family: sans-serif; padding: 20px; }
+    .section { display: none; margin-top: 20px; }
+    .visible { display: block; }
+    label { display: block; margin-top: 10px; }
+    select, input, textarea { width: 100%; padding: 5px; margin-top: 5px; }
   </style>
 </head>
 <body>
-  <h2>相談依頼フォーム</h2>
+  <h2>サポートフォーム</h2>
 
-  <div class="field">
-    <label>依頼の種類:</label><br>
-    <select id="typeSelect" onchange="renderForm()">
+  <label for="mode">モードを選択：</label>
+  <select id="mode">
+    <option value="予約">サポートMTG予約</option>
+    <option value="相談">相談依頼</option>
+  </select>
+
+  <!-- 予約 -->
+  <div id="予約" class="section visible">
+    <label>予約日時：</label>
+    <input type="datetime-local" id="reserveDate" min="09:00" max="18:00" />
+  </div>
+
+  <!-- 相談依頼 -->
+  <div id="相談" class="section">
+    <label>相談内容の種類：</label>
+    <select id="consultType">
       <option value="">選択してください</option>
       <option value="リッチメニュー">リッチメニュー</option>
       <option value="クーポン">クーポン</option>
@@ -22,151 +38,131 @@
       <option value="その他">その他</option>
       <option value="配信代行依頼">配信代行依頼</option>
     </select>
-  </div>
 
-  <div id="formContainer"></div>
+    <!-- リッチメニュー -->
+    <div id="リッチメニュー" class="section">
+      <label>目的：</label>
+      <select id="rmPurpose">
+        <option value="新規作成">新規作成</option>
+        <option value="デザイン変更（ボタン追加）">デザイン変更（ボタン追加）</option>
+        <option value="デザイン変更（ボタン変更）">デザイン変更（ボタン変更）</option>
+      </select>
+      <label>内容：</label>
+      <textarea id="rmDetail"></textarea>
+    </div>
+
+    <!-- クーポン -->
+    <div id="クーポン" class="section">
+      <label>画像アップロード：</label>
+      <input type="file" id="couponImage" />
+      <label>クーポンの種類：</label>
+      <input type="text" id="couponKind" />
+      <label>クーポン名：</label>
+      <input type="text" id="couponName" />
+      <label>有効期間：</label>
+      <input type="text" id="couponPeriod" placeholder="例：2025年1月1日～2025年2月1日" />
+      <label>利用ガイド：</label>
+      <textarea id="couponGuide"></textarea>
+      <label>利用可能数：</label>
+      <select id="couponCount">
+        <option value="1回のみ">1回のみ</option>
+        <option value="無制限">無制限</option>
+      </select>
+      <label>利用方法：</label>
+      <textarea id="couponUse"></textarea>
+    </div>
+
+    <!-- メニュー -->
+    <div id="メニュー追加・変更" class="section">
+      <label>操作：</label>
+      <select id="menuAction">
+        <option value="追加">追加</option>
+        <option value="変更">変更</option>
+        <option value="削除">削除</option>
+      </select>
+      <label>内容：</label>
+      <textarea id="menuDetail"></textarea>
+    </div>
+
+    <!-- その他 -->
+    <div id="その他" class="section">
+      <label>内容：</label>
+      <textarea id="otherDetail"></textarea>
+    </div>
+
+    <!-- 配信代行依頼 -->
+    <div id="配信代行依頼" class="section">
+      <label>配信日時：</label>
+      <input type="datetime-local" id="sendDatetime" />
+      <label>配信内容：</label>
+      <textarea id="sendContent"></textarea>
+      <label>備考：</label>
+      <textarea id="sendNote"></textarea>
+    </div>
+  </div>
 
   <button onclick="submitForm()">送信</button>
 
   <script>
-    let userId = '';
+    const modeSelect = document.getElementById("mode");
+    const consultType = document.getElementById("consultType");
 
-    async function initLiff() {
-      await liff.init({ liffId: '2007228552-OdkKEe6Y' });
-      if (!liff.isLoggedIn()) liff.login();
+    modeSelect.addEventListener("change", () => {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+      document.getElementById(modeSelect.value).classList.add("visible");
+    });
+
+    consultType.addEventListener("change", () => {
+      document.querySelectorAll("#相談 .section").forEach(s => s.classList.remove("visible"));
+      const selected = consultType.value;
+      if (selected) {
+        document.getElementById(selected).classList.add("visible");
+      }
+    });
+
+    async function submitForm() {
+      await liff.init({ liffId: "YOUR_LIFF_ID" });
       const profile = await liff.getProfile();
-      userId = profile.userId;
-    }
 
-    function renderForm() {
-      const type = document.getElementById('typeSelect').value;
-      const container = document.getElementById('formContainer');
-      container.innerHTML = ''; // clear
+      const data = {
+        name: profile.displayName,
+        type: modeSelect.value === "予約" ? "サポートMTG予約" : consultType.value,
+      };
 
-      if (type === 'リッチメニュー') {
-        container.innerHTML = `
-          <div class="field">
-            <label>種類:</label>
-            <select id="category">
-              <option>新規作成</option>
-              <option>デザイン変更（ボタン追加）</option>
-              <option>デザイン変更（ボタン変更）</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>内容:</label>
-            <textarea id="text"></textarea>
-          </div>`;
-      } else if (type === 'クーポン') {
-        container.innerHTML = `
-          <div class="field">
-            <label>クーポンの種類:</label>
-            <input type="text" id="type">
-          </div>
-          <div class="field">
-            <label>クーポン名:</label>
-            <input type="text" id="name">
-          </div>
-          <div class="field">
-            <label>有効期間:</label>
-            <input type="text" id="period" placeholder="例：2025年4月10日～2025年4月30日">
-          </div>
-          <div class="field">
-            <label>利用ガイド:</label>
-            <textarea id="guide"></textarea>
-          </div>
-          <div class="field">
-            <label>利用回数:</label>
-            <select id="usage">
-              <option>1回のみ</option>
-              <option>無制限</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>利用用途:</label>
-            <textarea id="purpose"></textarea>
-          </div>`;
-      } else if (type === 'メニュー追加・変更') {
-        container.innerHTML = `
-          <div class="field">
-            <label>操作:</label>
-            <select id="action">
-              <option>追加</option>
-              <option>変更</option>
-              <option>削除</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>内容:</label>
-            <textarea id="text"></textarea>
-          </div>`;
-      } else if (type === 'その他') {
-        container.innerHTML = `
-          <div class="field">
-            <label>内容:</label>
-            <textarea id="text"></textarea>
-          </div>`;
-      } else if (type === '配信代行依頼') {
-        container.innerHTML = `
-          <div class="field">
-            <label>配信日時:</label>
-            <input type="datetime-local" id="datetime">
-          </div>
-          <div class="field">
-            <label>配信内容:</label>
-            <textarea id="content"></textarea>
-          </div>
-          <div class="field">
-            <label>備考:</label>
-            <textarea id="note"></textarea>
-          </div>`;
-      }
-    }
-
-    function submitForm() {
-      const type = document.getElementById('typeSelect').value;
-      let payload = {};
-
-      if (type === 'リッチメニュー') {
-        payload.category = document.getElementById('category').value;
-        payload.text = document.getElementById('text').value;
-      } else if (type === 'クーポン') {
-        payload.type = document.getElementById('type').value;
-        payload.name = document.getElementById('name').value;
-        payload.period = document.getElementById('period').value;
-        payload.guide = document.getElementById('guide').value;
-        payload.usage = document.getElementById('usage').value;
-        payload.purpose = document.getElementById('purpose').value;
-      } else if (type === 'メニュー追加・変更') {
-        payload.action = document.getElementById('action').value;
-        payload.text = document.getElementById('text').value;
-      } else if (type === 'その他') {
-        payload.text = document.getElementById('text').value;
-      } else if (type === '配信代行依頼') {
-        payload.datetime = document.getElementById('datetime').value;
-        payload.content = document.getElementById('content').value;
-        payload.note = document.getElementById('note').value;
+      if (modeSelect.value === "予約") {
+        data.date = document.getElementById("reserveDate").value;
+      } else {
+        const type = consultType.value;
+        if (type === "リッチメニュー") {
+          data.purpose = document.getElementById("rmPurpose").value;
+          data.detail = document.getElementById("rmDetail").value;
+        } else if (type === "クーポン") {
+          data.kind = document.getElementById("couponKind").value;
+          data.name = document.getElementById("couponName").value;
+          data.period = document.getElementById("couponPeriod").value;
+          data.guide = document.getElementById("couponGuide").value;
+          data.count = document.getElementById("couponCount").value;
+          data.use = document.getElementById("couponUse").value;
+          // 画像はここで処理が必要（後述）
+        } else if (type === "メニュー追加・変更") {
+          data.action = document.getElementById("menuAction").value;
+          data.detail = document.getElementById("menuDetail").value;
+        } else if (type === "その他") {
+          data.detail = document.getElementById("otherDetail").value;
+        } else if (type === "配信代行依頼") {
+          data.datetime = document.getElementById("sendDatetime").value;
+          data.content = document.getElementById("sendContent").value;
+          data.note = document.getElementById("sendNote").value;
+        }
       }
 
-      fetch('https://script.google.com/macros/s/AKfycbzck903fsYg8ObNTtcOKarL18uhls3sfnPJVRAv0iofRPK-kPhSXyC1PMx-ep32msw66Q/exec', {
-        method: 'POST',
-        body: JSON.stringify({ userId, type, payload }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .then(res => res.json())
-      .then(json => {
-        alert('送信完了しました！');
-        liff.closeWindow();
-      })
-      .catch(err => {
-        console.error(err);
-        alert('送信エラーが発生しました');
+      fetch("YOUR_GAS_WEBAPP_URL", {
+        method: "POST",
+        body: JSON.stringify(data),
       });
-    }
 
-    window.onload = initLiff;
+      alert("送信しました！");
+    }
   </script>
 </body>
 </html>
