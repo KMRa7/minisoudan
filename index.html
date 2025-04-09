@@ -453,6 +453,19 @@
     .feedback-btn svg {
       margin-right: 8px;
     }
+    
+    /* 日時入力のラベル */
+    .date-label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+    
+    /* 操作モード選択を非表示 */
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 
@@ -469,7 +482,8 @@
         <div class="mode-tab ripple" data-mode="相談">相談依頼</div>
       </div>
       
-      <div class="form-group">
+      <!-- 操作モード（非表示） -->
+      <div class="form-group hidden">
         <div class="line-input-header">
           <label for="mode">操作モード</label>
           <span class="required-badge">必須</span>
@@ -489,17 +503,32 @@
               <label>予約希望日時</label>
               <span class="required-badge">必須</span>
             </div>
-            <div id="reserveList">
-              <div class="date-input">
-                <input type="datetime-local" class="reserveDate" />
-              </div>
+            
+            <!-- 第1希望〜第3希望（必須） -->
+            <div class="date-label">第1希望（必須）</div>
+            <div class="date-input">
+              <input type="datetime-local" class="reserveDate required" required />
             </div>
-            <button type="button" class="add-btn ripple" onclick="addReserve()">
+            
+            <div class="date-label">第2希望（必須）</div>
+            <div class="date-input">
+              <input type="datetime-local" class="reserveDate required" required />
+            </div>
+            
+            <div class="date-label">第3希望（必須）</div>
+            <div class="date-input">
+              <input type="datetime-local" class="reserveDate required" required />
+            </div>
+            
+            <!-- 第4希望〜第5希望（任意） -->
+            <div id="optionalDates"></div>
+            
+            <button type="button" class="add-btn ripple" onclick="addOptionalDate()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              希望日時を追加
+              希望日時を追加（任意）
             </button>
           </div>
         </div>
