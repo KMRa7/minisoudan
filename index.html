@@ -107,84 +107,88 @@
   <button onclick="submitForm()">送信</button>
 
   <script>
-    const modeSelect = document.getElementById("mode");
-    const consultType = document.getElementById("consultType");
+  const modeSelect = document.getElementById("mode");
+  const consultType = document.getElementById("consultType");
 
-    modeSelect.addEventListener("change", () => {
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
-      document.getElementById(modeSelect.value).classList.add("visible");
-    });
+  modeSelect.addEventListener("change", () => {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+    document.getElementById(modeSelect.value).classList.add("visible");
+  });
 
-    consultType.addEventListener("change", () => {
-      document.querySelectorAll("#相談 .section").forEach(s => s.classList.remove("visible"));
-      const selected = consultType.value;
-      if (selected) {
-        document.getElementById(selected).classList.add("visible");
+  consultType.addEventListener("change", () => {
+    document.querySelectorAll("#相談 .section").forEach(s => s.classList.remove("visible"));
+    const selected = consultType.value;
+    if (selected) {
+      document.getElementById(selected).classList.add("visible");
+    }
+  });
+
+  async function submitForm() {
+    await liff.init({ liffId: "2007228552-OdkKEe6Y" });
+    const profile = await liff.getProfile();
+    const context = liff.getContext(); // ← ここで userId を取得
+    console.log("context.userId:", context.userId);
+
+    const data = {
+      name: profile.displayName,
+      userId: context.userId, // ← ここが重要！
+      type: modeSelect.value === "予約" ? "サポートMTG予約" : consultType.value,
+    };
+
+    if (modeSelect.value === "予約") {
+      const reserveInputs = document.querySelectorAll(".reserveDate");
+      data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
+    } else {
+      const type = consultType.value;
+      if (type === "リッチメニュー") {
+        data.purpose = document.getElementById("rmPurpose").value;
+        data.detail = document.getElementById("rmDetail").value;
+      } else if (type === "クーポン") {
+        data.kind = document.getElementById("couponKind").value;
+        data.name = document.getElementById("couponName").value;
+        data.period = document.getElementById("couponPeriod").value;
+        data.guide = document.getElementById("couponGuide").value;
+        data.count = document.getElementById("couponCount").value;
+        data.use = document.getElementById("couponUse").value;
+      } else if (type === "メニュー追加・変更") {
+        data.action = document.getElementById("menuAction").value;
+        data.detail = document.getElementById("menuDetail").value;
+      } else if (type === "その他") {
+        data.detail = document.getElementById("otherDetail").value;
+      } else if (type === "配信代行依頼") {
+        data.datetime = document.getElementById("sendDatetime").value;
+        data.content = document.getElementById("sendContent").value;
+        data.note = document.getElementById("sendNote").value;
       }
-    });
-
-    async function submitForm() {
-      await liff.init({ liffId: "2007228552-OdkKEe6Y" });
-      const profile = await liff.getProfile();
-
-      const data = {
-        name: profile.displayName,
-        type: modeSelect.value === "予約" ? "サポートMTG予約" : consultType.value,
-      };
-
-      if (modeSelect.value === "予約") {
-        const reserveInputs = document.querySelectorAll(".reserveDate");
-        data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
-      } else {
-        const type = consultType.value;
-        if (type === "リッチメニュー") {
-          data.purpose = document.getElementById("rmPurpose").value;
-          data.detail = document.getElementById("rmDetail").value;
-        } else if (type === "クーポン") {
-          data.kind = document.getElementById("couponKind").value;
-          data.name = document.getElementById("couponName").value;
-          data.period = document.getElementById("couponPeriod").value;
-          data.guide = document.getElementById("couponGuide").value;
-          data.count = document.getElementById("couponCount").value;
-          data.use = document.getElementById("couponUse").value;
-          // 画像はここで処理が必要（後述）
-        } else if (type === "メニュー追加・変更") {
-          data.action = document.getElementById("menuAction").value;
-          data.detail = document.getElementById("menuDetail").value;
-        } else if (type === "その他") {
-          data.detail = document.getElementById("otherDetail").value;
-        } else if (type === "配信代行依頼") {
-          data.datetime = document.getElementById("sendDatetime").value;
-          data.content = document.getElementById("sendContent").value;
-          data.note = document.getElementById("sendNote").value;
-        }
-      }
-
-      fetch("https://script.google.com/macros/s/AKfycbyAD7PrDNDZl5Plx89ybgpsFs7TgCL9sjzgH6KYheN55sPYCxJ_SnyLI2zfzxtaTwTOwg/exec", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"  // ← これがないと e.postData が来ない
-        },
-        body: JSON.stringify(data),
-        mode: "no-cors"
-      });
-
-
-      alert("送信しました！");
     }
 
-    function addReserve() {
-      const container = document.getElementById("reserveList");
-      const count = container.querySelectorAll(".reserveDate").length;
-      if (count >= 5) {
-        alert("最大5件まで登録できます");
-        return;
-      }
-      const input = document.createElement("input");
-      input.type = "datetime-local";
-      input.className = "reserveDate";
-      container.appendChild(input);
+    console.log("送信データ:", data);
+
+    // GASへ送信
+    fetch("https://script.google.com/macros/s/AKfycbyAD7PrDNDZl5Plx89ybgpsFs7TgCL9sjzgH6KYheN55sPYCxJ_SnyLI2zfzxtaTwTOwg/exec", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      mode: "no-cors", // ← 超重要！
+    });
+
+    alert("送信しました！");
+  }
+
+  function addReserve() {
+    const container = document.getElementById("reserveList");
+    const count = container.querySelectorAll(".reserveDate").length;
+    if (count >= 5) {
+      alert("最大5件まで登録できます");
+      return;
     }
-  </script>
+    const input = document.createElement("input");
+    input.type = "datetime-local";
+    input.className = "reserveDate";
+    container.appendChild(input);
+  }
+</script>
 </body>
 </html>
