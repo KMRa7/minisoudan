@@ -527,18 +527,55 @@
       z-index: 2;
     }
 
-input[type="datetime-local"] {
-  color: transparent;
-  background-color: white;
-}
+    input[type="datetime-local"] {
+      color: transparent;
+      background-color: white;
+    }
+    
+    input[type="datetime-local"]:focus + .date-display {
+      display: none;
+    }
+    
+    input[type="datetime-local"]:focus {
+      color: var(--dark);
+    }
 
-input[type="datetime-local"]:focus + .date-display {
-  display: none;
-}
-
-input[type="datetime-local"]:focus {
-  color: var(--dark);
-}
+    /* チェックボックスのスタイリング */
+    .agreement-check input[type="checkbox"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #DFE2E6;
+      border-radius: 4px;
+      outline: none;
+      margin-right: 10px;
+      cursor: pointer;
+      position: relative;
+      background-color: white;
+    }
+    
+    .agreement-check input[type="checkbox"]:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .agreement-check input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      top: 3px;
+      left: 7px;
+      transform: rotate(45deg);
+    }
+    
+    .agreement-check input[type="checkbox"]:focus {
+      box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.2);
+    }
     
     /* 日付入力フォーマット変更のためのJavaScript追加 */
     input[type="datetime-local"] {
