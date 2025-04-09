@@ -466,6 +466,62 @@
     .hidden {
       display: none !important;
     }
+
+    /* 注意事項ボックス */
+    .notice-box {
+      background: #FFF9E6;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border-left: 3px solid #FFB74D;
+    }
+    
+    .notice-title {
+      color: #F57C00;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    
+    .notice-box ul {
+      margin: 12px 0;
+      padding-left: 24px;
+    }
+    
+    .notice-box li {
+      margin-bottom: 6px;
+    }
+    
+    .important-notice {
+      font-weight: 500;
+      color: #E53935;
+      margin: 12px 0;
+    }
+    
+    .agreement-check {
+      display: flex;
+      align-items: center;
+      margin-top: 16px;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .agreement-check input[type="checkbox"] {
+      width: auto;
+      margin-right: 10px;
+    }
+    
+    .agreement-check label {
+      margin-bottom: 0;
+      font-weight: 500;
+    }
+    
+    /* 日付入力フォーマット変更のためのJavaScript追加 */
+    input[type="datetime-local"] {
+      position: relative;
+    }
+    
   </style>
 </head>
 
@@ -536,6 +592,22 @@
 
       <!-- 相談依頼 -->
       <div id="相談" class="section">
+        <!-- 注意事項 -->
+        <div class="notice-box">
+          <h3 class="notice-title">【注意事項】</h3>
+          <p>相談依頼は下記の方向けのフォームになります。</p>
+          <ul>
+            <li>サポートミーティングを受ける時間がない方</li>
+            <li>サポートミーティングの必要がない方</li>
+          </ul>
+          <p class="important-notice">重要：相談依頼をご依頼いただいた月はサポートミーティング及びお悩み相談を実施することができません。</p>
+          <p>ご依頼内容によりますが、すべての情報が揃ってから、最低【4営業日】いただきます。</p>
+          <div class="agreement-check">
+            <input type="checkbox" id="agreeCheck" required>
+            <label for="agreeCheck">上記内容に同意します</label>
+            <span class="required-badge">必須</span>
+          </div>
+        </div>
         <div class="section-title">相談内容の詳細</div>
         <div class="form-group">
           <div class="line-input-header">
@@ -764,8 +836,109 @@
     }
   });
 
+  // 日時フォーマット変更のための関数
+  function formatJapaneseDate(dateInput) {
+    if (!dateInput.value) return;
+    
+    const date = new Date(dateInput.value);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    // 元の値を保持する属性
+    dateInput.setAttribute('data-original-value', dateInput.value);
+    
+    // 表示用のラベルを作成して挿入
+    const displayFormat = `${year}年${month}月${day}日 ${hours}:${minutes}`;
+    const displayLabel = document.createElement('div');
+    displayLabel.className = 'date-display';
+    displayLabel.textContent = displayFormat;
+    
+    // ラベル位置を調整
+    dateInput.parentNode.style.position = 'relative';
+    dateInput.style.color = 'transparent';
+    
+    // 既存のラベルを削除
+    const oldLabel = dateInput.parentNode.querySelector('.date-display');
+    if (oldLabel) {
+      dateInput.parentNode.removeChild(oldLabel);
+    }
+    
+    dateInput.parentNode.appendChild(displayLabel);
+  }
+  
+  // すべての日時入力にイベントリスナーを追加
+  document.addEventListener('DOMContentLoaded', function() {
+    const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
+    dateInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        formatJapaneseDate(this);
+      });
+      
+      // 初期値がある場合にも適用
+      if (input.value) {
+        formatJapaneseDate(input);
+      }
+    });
+    
+    // フォーム送信時の検証
+    const submitBtn = document.querySelector('.submit-btn');
+    submitBtn.addEventListener('click', function(e) {
+      // 相談モードのときは同意チェックを検証
+      if (modeSelect.value === "相談") {
+        const agreeCheck = document.getElementById('agreeCheck');
+        if (!agreeCheck.checked) {
+          e.preventDefault();
+          alert('注意事項への同意が必要です');
+          return false;
+        }
+      }
+    });
+  });
+  
+  // 追加の日付入力用の関数を修正
+  function addOptionalDate() {
+    const container = document.getElementById("optionalDates");
+    const dateCount = container.querySelectorAll(".date-input").length;
+    
+    if (dateCount >= 2) {
+      alert("追加の希望日時は最大2つまで登録できます");
+      return;
+    }
+    
+    const dateNum = dateCount + 4; // 第4希望、第5希望
+    
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = `
+      <div class="date-label">第${dateNum}希望（任意）</div>
+      <div class="date-input">
+        <input type="datetime-local" class="reserveDate" />
+        <button type="button" class="remove-date" onclick="this.parentNode.parentNode.remove()">×</button>
+      </div>
+    `;
+    
+    container.appendChild(wrapper);
+    
+    // 新しく追加した入力欄にもイベントリスナーを追加
+    const newInput = wrapper.querySelector('input[type="datetime-local"]');
+    newInput.addEventListener('change', function() {
+      formatJapaneseDate(this);
+    });
+  }
+  
+  // 元のsubmitForm関数を修正して、チェックボックスの検証を追加
   async function submitForm() {
     try {
+      // 相談モードでチェックボックスが必要な場合
+      if (modeSelect.value === "相談") {
+        const agreeCheck = document.getElementById('agreeCheck');
+        if (!agreeCheck.checked) {
+          alert('注意事項への同意が必要です');
+          return;
+        }
+      }
       // ローディング表示
       document.getElementById('loading').style.display = 'block';
       formContainer.style.display = 'none';
