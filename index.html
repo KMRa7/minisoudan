@@ -23,8 +23,11 @@
 
   <!-- 予約 -->
   <div id="予約" class="section visible">
-    <label>予約日時：</label>
-    <input type="datetime-local" id="reserveDate" min="09:00" max="18:00" />
+    <label>予約希望日時：</label>
+    <div id="reserveList">
+      <input type="datetime-local" class="reserveDate" />
+    </div>
+    <button type="button" onclick="addReserve()">＋追加</button>
   </div>
 
   <!-- 相談依頼 -->
@@ -130,7 +133,8 @@
       };
 
       if (modeSelect.value === "予約") {
-        data.date = document.getElementById("reserveDate").value;
+        const reserveInputs = document.querySelectorAll(".reserveDate");
+        data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
       } else {
         const type = consultType.value;
         if (type === "リッチメニュー") {
@@ -156,12 +160,25 @@
         }
       }
 
-      fetch("https://script.google.com/macros/s/AKfycbyAD7PrDNDZl5Plx89ybgpsFs7TgCL9sjzgH6KYheN55sPYCxJ_SnyLI2zfzxtaTwTOwg/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbyLCwVI3yLYOXdLLroc5bqIILD9z6rnS5N9tJ2yUDaAQ4K2tTHQ31a1-VmibwYCKLMp2w/exec", {
         method: "POST",
         body: JSON.stringify(data),
       });
 
       alert("送信しました！");
+    }
+
+    function addReserve() {
+      const container = document.getElementById("reserveList");
+      const count = container.querySelectorAll(".reserveDate").length;
+      if (count >= 5) {
+        alert("最大5件まで登録できます");
+        return;
+      }
+      const input = document.createElement("input");
+      input.type = "datetime-local";
+      input.className = "reserveDate";
+      container.appendChild(input);
     }
   </script>
 </body>
