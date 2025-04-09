@@ -919,6 +919,21 @@ input[type="datetime-local"]:focus {
         }
       }
     });
+
+    // チェックボックスの動作確認
+    const agreeCheck = document.getElementById('agreeCheck');
+    if (agreeCheck) {
+      agreeCheck.addEventListener('change', function() {
+        console.log('チェックボックス状態:', this.checked);
+      });
+    }
+    
+    // submitボタンのイベントリスナーを一元化
+    const submitBtn = document.querySelector('.submit-btn');
+    submitBtn.addEventListener('click', function(e) {
+      e.preventDefault(); // フォームのデフォルト送信を防止
+      submitForm(); // カスタム送信関数を呼び出し
+    });
   });
   
   // 追加の日付入力用の関数を修正
@@ -951,13 +966,13 @@ input[type="datetime-local"]:focus {
     });
   }
   
-  // 元のsubmitForm関数を修正して、チェックボックスの検証を追加
   async function submitForm() {
     try {
-      // 相談モードでチェックボックスが必要な場合
+      // 相談モードのチェック
       if (modeSelect.value === "相談") {
         const agreeCheck = document.getElementById('agreeCheck');
-        if (!agreeCheck.checked) {
+        // チェックボックスの状態を明示的に確認
+        if (!agreeCheck || !agreeCheck.checked) {
           alert('注意事項への同意が必要です');
           return;
         }
