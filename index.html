@@ -498,23 +498,33 @@
       margin: 12px 0;
     }
     
+    /* チェックボックスコンテナ */
     .agreement-check {
       display: flex;
       align-items: center;
       margin-top: 16px;
       background: white;
-      padding: 12px;
+      padding: 12px 16px;
       border-radius: 8px;
+      transition: var(--transition);
+      border: 1px solid #DFE2E6;
     }
     
-    .agreement-check input[type="checkbox"] {
-      width: auto;
-      margin-right: 10px;
+    /* チェックボックス同意時のスタイル */
+    .agreement-check.checked {
+      background-color: #E6F4EA;
+      border-left: 3px solid var(--primary);
     }
     
+    /* チェックボックスラベル */
     .agreement-check label {
       margin-bottom: 0;
       font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      flex: 1;
     }
 
     .date-display {
@@ -547,6 +557,7 @@
       appearance: none;
       width: 20px;
       height: 20px;
+      min-width: 20px;
       border: 1px solid #DFE2E6;
       border-radius: 4px;
       outline: none;
@@ -554,6 +565,7 @@
       cursor: pointer;
       position: relative;
       background-color: white;
+      padding: 0;
     }
     
     .agreement-check input[type="checkbox"]:checked {
@@ -743,6 +755,7 @@
               <div class="line-input-header">
                 <label>利用可能数</label>
                 <span class="required-badge">必須</span>
+              </div>必須</span>
               </div>
               <select id="couponCount">
                 <option value="1回のみ">1回のみ</option>
