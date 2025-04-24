@@ -682,3 +682,21 @@ input[type="datetime-local"]:focus {
 input[type="datetime-local"] {
   position: relative;
 }
+
+/* 条件付き必須バッジのスタイル */
+.conditional-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background-color: #f0ad4e;
+  color: white;
+  margin-left: 5px;
+}
+
+/* ハイライト表示用のスタイル */
+.highlighted {
+  border-left: 3px solid #ff6b6b;
+  padding-left: 12px;
+  background-color: rgba(255, 107, 107, 0.05);
+}
