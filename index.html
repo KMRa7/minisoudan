@@ -1,814 +1,908 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>サポートフォーム</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サポートフォーム</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <div class="container">
     <div class="header">
-      <h2>サポートフォーム</h2>
+        <h2>サポートフォーム</h2>
     </div>
-    
+
     <div class="form-container">
-      <!-- モード切り替えタブ -->
-      <div class="mode-tabs">
-        <div class="mode-tab active ripple" data-mode="予約">サポートMTG予約</div>
-        <div class="mode-tab ripple" data-mode="相談">相談依頼</div>
-      </div>
-      
-      <!-- 操作モード（非表示） -->
-      <div class="form-group hidden">
-        <div class="line-input-header">
-          <label for="mode">操作モード</label>
-          <span class="required-badge">必須</span>
+        <!-- モード切り替えタブ -->
+        <div class="mode-tabs">
+            <div class="mode-tab active ripple" data-mode="予約">サポートMTG予約</div>
+            <div class="mode-tab ripple" data-mode="相談">相談依頼</div>
         </div>
-        <select id="mode">
-          <option value="予約">サポートMTG予約</option>
-          <option value="相談">相談依頼</option>
-        </select>
-      </div>
 
-      <!-- 予約 -->
-      <div id="予約" class="section visible">
-        <div class="section-title">希望日時の選択</div>
-        <div class="form-card">
-          <div class="form-group">
+        <!-- 操作モード（非表示） -->
+        <div class="form-group hidden">
             <div class="line-input-header">
-              <label>予約希望日時</label>
-              <span class="required-badge">必須</span>
+                <label for="mode">操作モード</label>
+                <span class="required-badge">必須</span>
             </div>
-            
-            <!-- 第1希望〜第3希望（必須） -->
-            <div class="date-label">第1希望（必須）</div>
-            <div class="date-input">
-              <input type="datetime-local" class="reserveDate required" required />
+            <select id="mode">
+                <option value="予約">サポートMTG予約</option>
+                <option value="相談">相談依頼</option>
+            </select>
+        </div>
+
+        <!-- 予約 -->
+        <div id="予約" class="section visible">
+            <div class="section-title">希望日時の選択</div>
+            <div class="form-card">
+                <div class="form-group">
+                    <div class="line-input-header">
+                        <label>予約希望日時</label>
+                        <span class="required-badge">必須</span>
+                    </div>
+
+                    <!-- 第1希望〜第3希望（必須） -->
+                    <div class="date-label">第1希望（必須）</div>
+                    <div class="date-input">
+                        <input type="datetime-local" class="reserveDate required" required />
+                    </div>
+
+                    <div class="date-label">第2希望（必須）</div>
+                    <div class="date-input">
+                        <input type="datetime-local" class="reserveDate required" required />
+                    </div>
+
+                    <div class="date-label">第3希望（必須）</div>
+                    <div class="date-input">
+                        <input type="datetime-local" class="reserveDate required" required />
+                    </div>
+
+                    <!-- 第4希望〜第5希望（任意） -->
+                    <div id="optionalDates"></div>
+
+                    <button type="button" class="add-btn ripple" onclick="addOptionalDate()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        希望日時を追加（任意）
+                    </button>
+                </div>
             </div>
-            
-            <div class="date-label">第2希望（必須）</div>
-            <div class="date-input">
-              <input type="datetime-local" class="reserveDate required" required />
+        </div>
+
+        <!-- 相談依頼 -->
+        <div id="相談" class="section">
+            <!-- 注意事項 -->
+            <div class="notice-box">
+                <h3 class="notice-title">【注意事項】</h3>
+                <p>相談依頼は下記の方向けのフォームになります。</p>
+                <ul>
+                    <li>サポートミーティングを受ける時間がない方</li>
+                    <li>サポートミーティングの必要がない方</li>
+                </ul>
+                <p class="important-notice">重要：相談依頼をご依頼いただいた月はサポートミーティング及びお悩み相談を実施することができません。</p>
+                <p>ご依頼内容によりますが、すべての情報が揃ってから、最低【4営業日】いただきます。</p>
+                <div class="agreement-check">
+                    <input type="checkbox" id="agreeCheck" required>
+                    <label for="agreeCheck">上記内容に同意します</label>
+                    <span class="required-badge">必須</span>
+                </div>
             </div>
-            
-            <div class="date-label">第3希望（必須）</div>
-            <div class="date-input">
-              <input type="datetime-local" class="reserveDate required" required />
+
+            <!-- 相談タイプタブ（LINE/MEO）追加部分 -->
+            <div class="consult-type-tabs">
+                <div class="consult-type-tab line active ripple" data-type="line">LINE相談</div>
+                <div class="consult-type-tab meo ripple" data-type="meo">MEO相談</div>
             </div>
-            
-            <!-- 第4希望〜第5希望（任意） -->
-            <div id="optionalDates"></div>
-            
-            <button type="button" class="add-btn ripple" onclick="addOptionalDate()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              希望日時を追加（任意）
+
+            <!-- LINE相談コンテンツ -->
+            <div class="line-content visible">
+                <div class="section-title">相談内容の詳細</div>
+                <div class="form-group">
+                    <div class="line-input-header">
+                        <label>相談内容の種類</label>
+                        <span class="required-badge">必須</span>
+                    </div>
+                    <select id="consultType">
+                        <option value="">選択してください</option>
+                        <option value="リッチメニュー">リッチメニュー</option>
+                        <option value="クーポン">クーポン</option>
+                        <option value="メニュー追加・変更">メニュー追加・変更</option>
+                        <option value="その他">その他</option>
+                        <option value="配信代行依頼">配信代行依頼</option>
+                    </select>
+                </div>
+
+                <!-- リッチメニュー -->
+                <div id="リッチメニュー" class="section">
+                    <div class="form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>目的</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <select id="rmPurpose">
+                                <option value="新規作成">新規作成</option>
+                                <option value="デザイン変更（ボタン追加）">デザイン変更（ボタン追加）</option>
+                                <option value="デザイン変更（ボタン変更）">デザイン変更（ボタン変更）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="rmDetail" placeholder="具体的な内容をご記入ください"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- クーポン -->
+                <div id="クーポン" class="section">
+                    <div class="form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>クーポンの種類</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="text" id="couponKind" placeholder="例：割引クーポン、特典クーポンなど" />
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>クーポン名</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="text" id="couponName" placeholder="例：初回利用10%OFFクーポン" />
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>有効期間</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="text" id="couponPeriod" placeholder="例：2025年1月1日～2025年2月1日" />
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>利用ガイド</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <textarea id="couponGuide" placeholder="ご利用時の注意事項などをご記入ください"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>利用可能数</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <select id="couponCount">
+                                <option value="1回のみ">1回のみ</option>
+                                <option value="無制限">無制限</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>利用方法</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <textarea id="couponUse" placeholder="クーポンの利用方法をご記入ください"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- メニュー -->
+                <div id="メニュー追加・変更" class="section">
+                    <div class="form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>操作</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <select id="menuAction">
+                                <option value="追加">追加</option>
+                                <option value="変更">変更</option>
+                                <option value="削除">削除</option>
+                            </select>
+                        </div>
+
+                        <!-- メニュー名 -->
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>メニュー名称</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="text" id="menuName" placeholder="例：スペシャルマッサージコース" />
+                        </div>
+
+                        <!-- メニュー価格 -->
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>価格</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="text" id="menuPrice" placeholder="例：5,500円（税込）" />
+                        </div>
+
+                        <!-- メニュー所要時間 -->
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>所要時間</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="text" id="menuDuration" placeholder="例：60分" />
+                        </div>
+
+                        <!-- メニュー掲載場所 -->
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>掲載場所・カテゴリ</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="text" id="menuCategory" placeholder="例：ボディケアメニュー、スペシャルコースなど" />
+                        </div>
+
+                        <!-- メニュー説明 -->
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>メニュー説明</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <textarea id="menuDescription" placeholder="メニューの詳細説明をご記入ください"></textarea>
+                        </div>
+
+                        <!-- 特記事項 -->
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>特記事項</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <textarea id="menuNotes" placeholder="予約条件・制限事項など特記事項があればご記入ください"></textarea>
+                        </div>
+
+                        <!-- 既存メニュー指定（変更・削除の場合）-->
+                        <div class="form-group" id="existingMenuGroup">
+                            <div class="line-input-header">
+                                <label>変更・削除対象の既存メニュー</label>
+                                <span class="conditional-badge">変更・削除時は必須</span>
+                            </div>
+                            <input type="text" id="existingMenuName" placeholder="変更・削除したい既存メニュー名" />
+                        </div>
+
+                        <!-- 添付画像（任意）-->
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>参考画像の有無</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <select id="hasMenuImage">
+                                <option value="なし">なし</option>
+                                <option value="あり">あり（別途担当者へ送付）</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- その他 -->
+                <div id="その他" class="section">
+                    <div class="form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="otherDetail" placeholder="相談内容の詳細をご記入ください"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 配信代行依頼 -->
+                <div id="配信代行依頼" class="section">
+                    <div class="form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>配信日時</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <input type="datetime-local" id="sendDatetime" />
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>配信内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="sendContent" placeholder="配信したい内容をご記入ください"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>備考</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <textarea id="sendNote" placeholder="その他特記事項があればご記入ください"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEO相談コンテンツ -->
+            <div class="meo-content">
+                <div class="section-title">MEO相談内容の詳細</div>
+                <div class="form-group">
+                    <div class="line-input-header">
+                        <label>相談内容の種類</label>
+                        <span class="required-badge">必須</span>
+                    </div>
+                    <select id="meoConsultType">
+                        <option value="">選択してください</option>
+                        <option value="Googleビジネスプロフィール設定">Googleビジネスプロフィール設定</option>
+                        <option value="MEO対策相談">MEO対策相談</option>
+                        <option value="クチコミ対応">クチコミ対応</option>
+                        <option value="投稿作成依頼">投稿作成依頼</option>
+                        <option value="MEOその他">その他</option>
+                    </select>
+                </div>
+
+                <!-- Googleビジネスプロフィール設定 -->
+                <div id="Googleビジネスプロフィール設定" class="section">
+                    <div class="meo-form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>設定内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <select id="gbpSettingType">
+                                <option value="新規登録">新規登録</option>
+                                <option value="情報修正">情報修正</option>
+                                <option value="オーナー確認">オーナー確認</option>
+                                <option value="写真追加">写真追加</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>詳細な内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="gbpDetail" placeholder="設定・変更したい内容の詳細をご記入ください"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEO対策相談 -->
+                <div id="MEO対策相談" class="section">
+                    <div class="meo-form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>現状の課題</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="meoIssue" placeholder="現在のMEOに関する課題をご記入ください"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>希望するキーワード</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <input type="text" id="meoKeywords" placeholder="例：〇〇 美容院、△△区 カフェなど" />
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>ターゲットエリア</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <input type="text" id="meoTargetArea" placeholder="例：〇〇市、△△区など" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- クチコミ対応 -->
+                <div id="クチコミ対応" class="section">
+                    <div class="meo-form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>対応したいクチコミURL</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <input type="text" id="reviewUrl" placeholder="対応したいクチコミのURLがあれば入力してください" />
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>クチコミ内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="reviewContent" placeholder="対応が必要なクチコミの内容を入力してください"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>対応方針</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <select id="reviewActionType">
+                                <option value="返信文作成">返信文作成</option>
+                                <option value="削除依頼相談">削除依頼相談</option>
+                                <option value="その他対応">その他対応</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 投稿作成依頼 -->
+                <div id="投稿作成依頼" class="section">
+                    <div class="meo-form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>投稿内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="postContent" placeholder="作成したい投稿の内容や方向性についてご記入ください"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>希望投稿日</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <input type="date" id="postDate" />
+                        </div>
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>参考にしてほしい情報</label>
+                                <span class="optional-badge">任意</span>
+                            </div>
+                            <textarea id="postReference" placeholder="参考にしてほしい情報や資料があればご記入ください"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEOその他 -->
+                <div id="MEOその他" class="section">
+                    <div class="meo-form-card">
+                        <div class="form-group">
+                            <div class="line-input-header">
+                                <label>相談内容</label>
+                                <span class="required-badge">必須</span>
+                            </div>
+                            <textarea id="meoOtherDetail" placeholder="MEOに関する相談内容の詳細をご記入ください"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="submit-btn ripple pulse" onclick="submitForm()">送信する</button>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>送信中...</p>
+        </div>
+
+        <div class="success-message" id="success">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <h3>送信完了</h3>
+            <p>フォームの送信が完了しました。<br>内容を確認後、担当者よりご連絡いたします。</p>
+            <button class="add-btn ripple" onclick="resetForm()">新しいフォームを作成</button>
+            <button class="feedback-btn ripple" onclick="location.href='#'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                フィードバックを送る
             </button>
-          </div>
         </div>
-      </div>
-
-      <!-- 相談依頼 -->
-      <div id="相談" class="section">
-        <!-- 注意事項 -->
-        <div class="notice-box">
-          <h3 class="notice-title">【注意事項】</h3>
-          <p>相談依頼は下記の方向けのフォームになります。</p>
-          <ul>
-            <li>サポートミーティングを受ける時間がない方</li>
-            <li>サポートミーティングの必要がない方</li>
-          </ul>
-          <p class="important-notice">重要：相談依頼をご依頼いただいた月はサポートミーティング及びお悩み相談を実施することができません。</p>
-          <p>ご依頼内容によりますが、すべての情報が揃ってから、最低【4営業日】いただきます。</p>
-          <div class="agreement-check">
-            <input type="checkbox" id="agreeCheck" required>
-            <label for="agreeCheck">上記内容に同意します</label>
-            <span class="required-badge">必須</span>
-          </div>
-        </div>
-
-        <!-- 相談タイプタブ（LINE/MEO）追加部分 -->
-        <div class="consult-type-tabs">
-          <div class="consult-type-tab line active ripple" data-type="line">LINE相談</div>
-          <div class="consult-type-tab meo ripple" data-type="meo">MEO相談</div>
-        </div>
-
-        <!-- LINE相談コンテンツ -->
-        <div class="line-content visible">
-          <div class="section-title">相談内容の詳細</div>
-          <div class="form-group">
-            <div class="line-input-header">
-              <label>相談内容の種類</label>
-              <span class="required-badge">必須</span>
-            </div>
-            <select id="consultType">
-              <option value="">選択してください</option>
-              <option value="リッチメニュー">リッチメニュー</option>
-              <option value="クーポン">クーポン</option>
-              <option value="メニュー追加・変更">メニュー追加・変更</option>
-              <option value="その他">その他</option>
-              <option value="配信代行依頼">配信代行依頼</option>
-            </select>
-          </div>
-
-          <!-- リッチメニュー -->
-          <div id="リッチメニュー" class="section">
-            <div class="form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>目的</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <select id="rmPurpose">
-                  <option value="新規作成">新規作成</option>
-                  <option value="デザイン変更（ボタン追加）">デザイン変更（ボタン追加）</option>
-                  <option value="デザイン変更（ボタン変更）">デザイン変更（ボタン変更）</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="rmDetail" placeholder="具体的な内容をご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- クーポン -->
-          <div id="クーポン" class="section">
-            <div class="form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>クーポンの種類</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <input type="text" id="couponKind" placeholder="例：割引クーポン、特典クーポンなど" />
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>クーポン名</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <input type="text" id="couponName" placeholder="例：初回利用10%OFFクーポン" />
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>有効期間</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <input type="text" id="couponPeriod" placeholder="例：2025年1月1日～2025年2月1日" />
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>利用ガイド</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <textarea id="couponGuide" placeholder="ご利用時の注意事項などをご記入ください"></textarea>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>利用可能数</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <select id="couponCount">
-                  <option value="1回のみ">1回のみ</option>
-                  <option value="無制限">無制限</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>利用方法</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <textarea id="couponUse" placeholder="クーポンの利用方法をご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- メニュー -->
-          <div id="メニュー追加・変更" class="section">
-            <div class="form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>操作</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <select id="menuAction">
-                  <option value="追加">追加</option>
-                  <option value="変更">変更</option>
-                  <option value="削除">削除</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="menuDetail" placeholder="メニューの詳細情報をご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- その他 -->
-          <div id="その他" class="section">
-            <div class="form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="otherDetail" placeholder="相談内容の詳細をご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- 配信代行依頼 -->
-          <div id="配信代行依頼" class="section">
-            <div class="form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>配信日時</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <input type="datetime-local" id="sendDatetime" />
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>配信内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="sendContent" placeholder="配信したい内容をご記入ください"></textarea>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>備考</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <textarea id="sendNote" placeholder="その他特記事項があればご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- MEO相談コンテンツ -->
-        <div class="meo-content">
-          <div class="section-title">MEO相談内容の詳細</div>
-          <div class="form-group">
-            <div class="line-input-header">
-              <label>相談内容の種類</label>
-              <span class="required-badge">必須</span>
-            </div>
-            <select id="meoConsultType">
-              <option value="">選択してください</option>
-              <option value="Googleビジネスプロフィール設定">Googleビジネスプロフィール設定</option>
-              <option value="MEO対策相談">MEO対策相談</option>
-              <option value="クチコミ対応">クチコミ対応</option>
-              <option value="投稿作成依頼">投稿作成依頼</option>
-              <option value="MEOその他">その他</option>
-            </select>
-          </div>
-
-          <!-- Googleビジネスプロフィール設定 -->
-          <div id="Googleビジネスプロフィール設定" class="section">
-            <div class="meo-form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>設定内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <select id="gbpSettingType">
-                  <option value="新規登録">新規登録</option>
-                  <option value="情報修正">情報修正</option>
-                  <option value="オーナー確認">オーナー確認</option>
-                  <option value="写真追加">写真追加</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>詳細な内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="gbpDetail" placeholder="設定・変更したい内容の詳細をご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- MEO対策相談 -->
-          <div id="MEO対策相談" class="section">
-            <div class="meo-form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>現状の課題</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="meoIssue" placeholder="現在のMEOに関する課題をご記入ください"></textarea>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>希望するキーワード</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <input type="text" id="meoKeywords" placeholder="例：〇〇 美容院、△△区 カフェなど" />
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>ターゲットエリア</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <input type="text" id="meoTargetArea" placeholder="例：〇〇市、△△区など" />
-              </div>
-            </div>
-          </div>
-
-          <!-- クチコミ対応 -->
-          <div id="クチコミ対応" class="section">
-            <div class="meo-form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>対応したいクチコミURL</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <input type="text" id="reviewUrl" placeholder="対応したいクチコミのURLがあれば入力してください" />
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>クチコミ内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="reviewContent" placeholder="対応が必要なクチコミの内容を入力してください"></textarea>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>対応方針</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <select id="reviewActionType">
-                  <option value="返信文作成">返信文作成</option>
-                  <option value="削除依頼相談">削除依頼相談</option>
-                  <option value="その他対応">その他対応</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- 投稿作成依頼 -->
-          <div id="投稿作成依頼" class="section">
-            <div class="meo-form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>投稿内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="postContent" placeholder="作成したい投稿の内容や方向性についてご記入ください"></textarea>
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>希望投稿日</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <input type="date" id="postDate" />
-              </div>
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>参考にしてほしい情報</label>
-                  <span class="optional-badge">任意</span>
-                </div>
-                <textarea id="postReference" placeholder="参考にしてほしい情報や資料があればご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- MEOその他 -->
-          <div id="MEOその他" class="section">
-            <div class="meo-form-card">
-              <div class="form-group">
-                <div class="line-input-header">
-                  <label>相談内容</label>
-                  <span class="required-badge">必須</span>
-                </div>
-                <textarea id="meoOtherDetail" placeholder="MEOに関する相談内容の詳細をご記入ください"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button class="submit-btn ripple pulse" onclick="submitForm()">送信する</button>
-      
-      <div class="loading" id="loading">
-        <div class="loading-spinner"></div>
-        <p>送信中...</p>
-      </div>
-      
-      <div class="success-message" id="success">
-        <div class="success-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-        </div>
-        <h3>送信完了</h3>
-        <p>フォームの送信が完了しました。<br>内容を確認後、担当者よりご連絡いたします。</p>
-        <button class="add-btn ripple" onclick="resetForm()">新しいフォームを作成</button>
-        <button class="feedback-btn ripple" onclick="location.href='#'">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-          フィードバックを送る
-        </button>
-      </div>
     </div>
-  </div>
+</div>
 
-  <script>
-  
-document.addEventListener('DOMContentLoaded', function() {
-  const modeSelect = document.getElementById("mode");
-  const consultType = document.getElementById("consultType");
-  const meoConsultType = document.getElementById("meoConsultType");
-  const loadingEl = document.getElementById("loading");
-  const successEl = document.getElementById("success");
-  const formContainer = document.querySelector(".form-container");
-  const modeTabs = document.querySelectorAll(".mode-tab");
-  const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
+<script>
 
-  // モードタブ切り替え
-  modeTabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      // 全てのタブから active クラスを削除
-      modeTabs.forEach(t => t.classList.remove("active"));
-      // クリックされたタブに active クラスを追加
-      tab.classList.add("active");
-      
-      const mode = tab.dataset.mode;
-      modeSelect.value = mode;
-      
-      // セクションの表示切り替え
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
-      document.getElementById(mode).classList.add("visible");
-    });
-  });
+    document.addEventListener('DOMContentLoaded', function () {
+        const modeSelect = document.getElementById("mode");
+        const consultType = document.getElementById("consultType");
+        const meoConsultType = document.getElementById("meoConsultType");
+        const loadingEl = document.getElementById("loading");
+        const successEl = document.getElementById("success");
+        const formContainer = document.querySelector(".form-container");
+        const modeTabs = document.querySelectorAll(".mode-tab");
+        const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
 
-  // 相談タイプタブ(LINE/MEO)切り替え
-  consultTypeTabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      // 全てのタブから active クラスを削除
-      consultTypeTabs.forEach(t => t.classList.remove("active"));
-      // クリックされたタブに active クラスを追加
-      tab.classList.add("active");
-      
-      const type = tab.dataset.type;
-      
-      // コンテンツの表示切り替え
-      if (type === "line") {
-        document.querySelector(".line-content").classList.add("visible");
-        document.querySelector(".meo-content").classList.remove("visible");
-      } else if (type === "meo") {
-        document.querySelector(".line-content").classList.remove("visible");
-        document.querySelector(".meo-content").classList.add("visible");
-      }
-      
-      // 相談タイプセレクトをリセット
-      if (consultType) consultType.value = "";
-      if (meoConsultType) meoConsultType.value = "";
-      
-      // セクションをすべて非表示
-      document.querySelectorAll("#相談 .section").forEach(s => {
-        if (!s.id.startsWith("相談")) {
-          s.classList.remove("visible");
+        // モードタブ切り替え
+        modeTabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // 全てのタブから active クラスを削除
+                modeTabs.forEach(t => t.classList.remove("active"));
+                // クリックされたタブに active クラスを追加
+                tab.classList.add("active");
+
+                const mode = tab.dataset.mode;
+                modeSelect.value = mode;
+
+                // セクションの表示切り替え
+                document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+                document.getElementById(mode).classList.add("visible");
+            });
+        });
+
+        // 相談タイプタブ(LINE/MEO)切り替え
+        consultTypeTabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // 全てのタブから active クラスを削除
+                consultTypeTabs.forEach(t => t.classList.remove("active"));
+                // クリックされたタブに active クラスを追加
+                tab.classList.add("active");
+
+                const type = tab.dataset.type;
+
+                // コンテンツの表示切り替え
+                if (type === "line") {
+                    document.querySelector(".line-content").classList.add("visible");
+                    document.querySelector(".meo-content").classList.remove("visible");
+                } else if (type === "meo") {
+                    document.querySelector(".line-content").classList.remove("visible");
+                    document.querySelector(".meo-content").classList.add("visible");
+                }
+
+                // 相談タイプセレクトをリセット
+                if (consultType) consultType.value = "";
+                if (meoConsultType) meoConsultType.value = "";
+
+                // セクションをすべて非表示
+                document.querySelectorAll("#相談 .section").forEach(s => {
+                    if (!s.id.startsWith("相談")) {
+                        s.classList.remove("visible");
+                    }
+                });
+            });
+        });
+
+        // LINE相談タイプが変更されたときの処理
+        if (consultType) {
+            consultType.addEventListener("change", () => {
+                document.querySelectorAll(".line-content .section").forEach(s => s.classList.remove("visible"));
+                const selected = consultType.value;
+                if (selected) {
+                    document.getElementById(selected).classList.add("visible");
+                }
+            });
         }
-      });
-    });
-  });
 
-  // LINE相談タイプが変更されたときの処理
-  if (consultType) {
-    consultType.addEventListener("change", () => {
-      document.querySelectorAll(".line-content .section").forEach(s => s.classList.remove("visible"));
-      const selected = consultType.value;
-      if (selected) {
-        document.getElementById(selected).classList.add("visible");
-      }
-    });
-  }
+        // MEO相談タイプが変更されたときの処理
+        if (meoConsultType) {
+            meoConsultType.addEventListener("change", () => {
+                document.querySelectorAll(".meo-content .section").forEach(s => s.classList.remove("visible"));
+                const selected = meoConsultType.value;
+                if (selected) {
+                    document.getElementById(selected).classList.add("visible");
+                }
+            });
+        }
 
-  // MEO相談タイプが変更されたときの処理
-  if (meoConsultType) {
-    meoConsultType.addEventListener("change", () => {
-      document.querySelectorAll(".meo-content .section").forEach(s => s.classList.remove("visible"));
-      const selected = meoConsultType.value;
-      if (selected) {
-        document.getElementById(selected).classList.add("visible");
-      }
-    });
-  }
+        // 日時フォーマット変更のための処理
+        const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
+        dateInputs.forEach(input => {
+            input.addEventListener('change', function () {
+                formatJapaneseDate(this);
+            });
 
-  // 日時フォーマット変更のための処理
-  const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
-  dateInputs.forEach(input => {
-    input.addEventListener('change', function() {
-      formatJapaneseDate(this);
+            // 初期値がある場合にも適用
+            if (input.value) {
+                formatJapaneseDate(input);
+            }
+        });
+
+        // チェックボックスの動作確認
+        const agreeCheck = document.getElementById('agreeCheck');
+        if (agreeCheck) {
+            agreeCheck.addEventListener('change', function () {
+                // チェックボックスのスタイルを変更して状態を視覚的に示す
+                if (this.checked) {
+                    this.parentNode.classList.add('checked');
+                } else {
+                    this.parentNode.classList.remove('checked');
+                }
+            });
+        }
+
+        // submitボタンのイベントリスナー
+        const submitBtn = document.querySelector('.submit-btn');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function (e) {
+                e.preventDefault(); // フォームのデフォルト送信を防止
+                submitForm(); // カスタム送信関数を呼び出し
+            });
+        }
+
+        // 相談タブ選択時にチェックボックスをリセット
+        const consultTab = document.querySelector('.mode-tab[data-mode="相談"]');
+        if (consultTab) {
+            consultTab.addEventListener('click', function () {
+                const agreeCheck = document.getElementById('agreeCheck');
+                if (agreeCheck) {
+                    agreeCheck.checked = false;
+                    agreeCheck.parentNode.classList.remove('checked');
+                }
+            });
+        }
+
     });
-    
-    // 初期値がある場合にも適用
-    if (input.value) {
-      formatJapaneseDate(input);
+
+    // 日時フォーマット変更のための関数
+    function formatJapaneseDate(dateInput) {
+        if (!dateInput.value) return;
+
+        const date = new Date(dateInput.value);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        // 元の値を保持する属性
+        dateInput.setAttribute('data-original-value', dateInput.value);
+
+        // 表示用のラベルを作成して挿入
+        const displayFormat = `${year}年${month}月${day}日 ${hours}:${minutes}`;
+        const displayLabel = document.createElement('div');
+        displayLabel.className = 'date-display';
+        displayLabel.textContent = displayFormat;
+
+        // ラベル位置を調整
+        dateInput.parentNode.style.position = 'relative';
+        dateInput.style.color = 'transparent';
+
+        // 既存のラベルを削除
+        const oldLabel = dateInput.parentNode.querySelector('.date-display');
+        if (oldLabel) {
+            dateInput.parentNode.removeChild(oldLabel);
+        }
+
+        dateInput.parentNode.appendChild(displayLabel);
     }
-  });
-  
-  // チェックボックスの動作確認
-  const agreeCheck = document.getElementById('agreeCheck');
-  if (agreeCheck) {
-    agreeCheck.addEventListener('change', function() {
-      // チェックボックスのスタイルを変更して状態を視覚的に示す
-      if (this.checked) {
-        this.parentNode.classList.add('checked');
-      } else {
-        this.parentNode.classList.remove('checked');
-      }
-    });
-  }
-  
-  // submitボタンのイベントリスナー
-  const submitBtn = document.querySelector('.submit-btn');
-  if (submitBtn) {
-    submitBtn.addEventListener('click', function(e) {
-      e.preventDefault(); // フォームのデフォルト送信を防止
-      submitForm(); // カスタム送信関数を呼び出し
-    });
-  }
 
-  // 相談タブ選択時にチェックボックスをリセット
-  const consultTab = document.querySelector('.mode-tab[data-mode="相談"]');
-  if (consultTab) {
-    consultTab.addEventListener('click', function() {
-      const agreeCheck = document.getElementById('agreeCheck');
-      if (agreeCheck) {
-        agreeCheck.checked = false;
-        agreeCheck.parentNode.classList.remove('checked');
-      }
-    });
-  }
-    
-});
+    // 追加の日付入力用の関数
+    function addOptionalDate() {
+        const container = document.getElementById("optionalDates");
+        const dateCount = container.querySelectorAll(".date-input").length;
 
-// 日時フォーマット変更のための関数
-function formatJapaneseDate(dateInput) {
-  if (!dateInput.value) return;
-  
-  const date = new Date(dateInput.value);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  
-  // 元の値を保持する属性
-  dateInput.setAttribute('data-original-value', dateInput.value);
-  
-  // 表示用のラベルを作成して挿入
-  const displayFormat = `${year}年${month}月${day}日 ${hours}:${minutes}`;
-  const displayLabel = document.createElement('div');
-  displayLabel.className = 'date-display';
-  displayLabel.textContent = displayFormat;
-  
-  // ラベル位置を調整
-  dateInput.parentNode.style.position = 'relative';
-  dateInput.style.color = 'transparent';
-  
-  // 既存のラベルを削除
-  const oldLabel = dateInput.parentNode.querySelector('.date-display');
-  if (oldLabel) {
-    dateInput.parentNode.removeChild(oldLabel);
-  }
-  
-  dateInput.parentNode.appendChild(displayLabel);
-}
+        if (dateCount >= 2) {
+            alert("追加の希望日時は最大2つまで登録できます");
+            return;
+        }
 
-// 追加の日付入力用の関数
-function addOptionalDate() {
-  const container = document.getElementById("optionalDates");
-  const dateCount = container.querySelectorAll(".date-input").length;
-  
-  if (dateCount >= 2) {
-    alert("追加の希望日時は最大2つまで登録できます");
-    return;
-  }
-  
-  const dateNum = dateCount + 4; // 第4希望、第5希望
-  
-  const wrapper = document.createElement("div");
-  wrapper.innerHTML = `
+        const dateNum = dateCount + 4; // 第4希望、第5希望
+
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = `
     <div class="date-label">第${dateNum}希望（任意）</div>
     <div class="date-input">
       <input type="datetime-local" class="reserveDate" />
       <button type="button" class="remove-date" onclick="this.parentNode.parentNode.remove()">×</button>
     </div>
   `;
-  
-  container.appendChild(wrapper);
-  
-  // 新しく追加した入力欄にもイベントリスナーを追加
-  const newInput = wrapper.querySelector('input[type="datetime-local"]');
-  newInput.addEventListener('change', function() {
-    formatJapaneseDate(this);
-  });
-}
 
-// チェックボックスの状態を確認する関数
-function validateConsultForm() {
-  const modeSelect = document.getElementById("mode");
-  
-  // 相談モードの時のみチェックボックスを検証
-  if (modeSelect.value === "相談") {
-    const agreeCheck = document.getElementById('agreeCheck');
-    if (!agreeCheck.checked) {
-      alert('注意事項への同意が必要です');
-      return false;
-    }
-    
-    // 相談タイプが選択されているか確認
-    const isLineActive = document.querySelector('.consult-type-tab.line').classList.contains('active');
-    
-    if (isLineActive) {
-      const consultType = document.getElementById("consultType");
-      if (!consultType.value) {
-        alert('LINE相談内容の種類を選択してください');
-        return false;
-      }
-    } else {
-      const meoConsultType = document.getElementById("meoConsultType");
-      if (!meoConsultType.value) {
-        alert('MEO相談内容の種類を選択してください');
-        return false;
-      }
-    }
-  }
-  return true;
-}
+        container.appendChild(wrapper);
 
-// 送信関数を修正
-async function submitForm() {
-  try {
-    const modeSelect = document.getElementById("mode");
-    const isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
-    const consultType = isLineActive ? document.getElementById("consultType") : document.getElementById("meoConsultType");
-    
-    // フォームバリデーション
-    if (!validateConsultForm()) {
-      return; // バリデーション失敗時は処理を中断
-    }
-    
-    // ローディング表示
-    document.getElementById('loading').style.display = 'block';
-    document.querySelector(".form-container").style.display = 'none';
-    
-    await liff.init({ liffId: "2007228552-OdkKEe6Y" });
-    const profile = await liff.getProfile();
-    const context = liff.getContext();
-    console.log("context.userId:", context.userId);
-
-    const data = {
-      name: profile.displayName,
-      userId: context.userId,
-      type: modeSelect.value === "予約" ? "サポートMTG予約" : (isLineActive ? "LINE相談-" : "MEO相談-") + consultType.value,
-    };
-
-    if (modeSelect.value === "予約") {
-      const reserveInputs = document.querySelectorAll(".reserveDate");
-      data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
-    } else if (isLineActive) {
-      // LINE相談の場合
-      const type = consultType.value;
-      if (type === "リッチメニュー") {
-        data.purpose = document.getElementById("rmPurpose").value;
-        data.detail = document.getElementById("rmDetail").value;
-      } else if (type === "クーポン") {
-        data.kind = document.getElementById("couponKind").value;
-        data.name = document.getElementById("couponName").value;
-        data.period = document.getElementById("couponPeriod").value;
-        data.guide = document.getElementById("couponGuide").value;
-        data.count = document.getElementById("couponCount").value;
-        data.use = document.getElementById("couponUse").value;
-      } else if (type === "メニュー追加・変更") {
-        data.action = document.getElementById("menuAction").value;
-        data.detail = document.getElementById("menuDetail").value;
-      } else if (type === "その他") {
-        data.detail = document.getElementById("otherDetail").value;
-      } else if (type === "配信代行依頼") {
-        data.datetime = document.getElementById("sendDatetime").value;
-        data.content = document.getElementById("sendContent").value;
-        data.note = document.getElementById("sendNote").value;
-      }
-    } else {
-      // MEO相談の場合
-      const type = consultType.value;
-      if (type === "Googleビジネスプロフィール設定") {
-        data.settingType = document.getElementById("gbpSettingType").value;
-        data.detail = document.getElementById("gbpDetail").value;
-      } else if (type === "MEO対策相談") {
-        data.issue = document.getElementById("meoIssue").value;
-        data.keywords = document.getElementById("meoKeywords").value;
-        data.targetArea = document.getElementById("meoTargetArea").value;
-      } else if (type === "クチコミ対応") {
-        data.reviewUrl = document.getElementById("reviewUrl").value;
-        data.reviewContent = document.getElementById("reviewContent").value;
-        data.actionType = document.getElementById("reviewActionType").value;
-      } else if (type === "投稿作成依頼") {
-        data.postContent = document.getElementById("postContent").value;
-        data.postDate = document.getElementById("postDate").value;
-        data.reference = document.getElementById("postReference").value;
-      } else if (type === "MEOその他") {
-        data.detail = document.getElementById("meoOtherDetail").value;
-      }
+        // 新しく追加した入力欄にもイベントリスナーを追加
+        const newInput = wrapper.querySelector('input[type="datetime-local"]');
+        newInput.addEventListener('change', function () {
+            formatJapaneseDate(this);
+        });
     }
 
-    console.log("送信データ:", data);
+    // チェックボックスの状態を確認する関数
+    function validateConsultForm() {
+        const modeSelect = document.getElementById("mode");
 
-    // GASへ送信
-    await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-      mode: "no-cors",
+        // 相談モードの時のみチェックボックスを検証
+        if (modeSelect.value === "相談") {
+            const agreeCheck = document.getElementById('agreeCheck');
+            if (!agreeCheck.checked) {
+                alert('注意事項への同意が必要です');
+                return false;
+            }
+
+            // 相談タイプが選択されているか確認
+            const isLineActive = document.querySelector('.consult-type-tab.line').classList.contains('active');
+
+            if (isLineActive) {
+                const consultType = document.getElementById("consultType");
+                if (!consultType.value) {
+                    alert('LINE相談内容の種類を選択してください');
+                    return false;
+                }
+            } else {
+                const meoConsultType = document.getElementById("meoConsultType");
+                if (!meoConsultType.value) {
+                    alert('MEO相談内容の種類を選択してください');
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // 送信関数を修正
+    async function submitForm() {
+        try {
+            const modeSelect = document.getElementById("mode");
+            const isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
+            const consultType = isLineActive ? document.getElementById("consultType") : document.getElementById("meoConsultType");
+
+            // フォームバリデーション
+            if (!validateConsultForm()) {
+                return; // バリデーション失敗時は処理を中断
+            }
+
+            // ローディング表示
+            document.getElementById('loading').style.display = 'block';
+            document.querySelector(".form-container").style.display = 'none';
+
+            await liff.init({ liffId: "2007228552-OdkKEe6Y" });
+            const profile = await liff.getProfile();
+            const context = liff.getContext();
+            console.log("context.userId:", context.userId);
+
+            const data = {
+                name: profile.displayName,
+                userId: context.userId,
+                type: modeSelect.value === "予約" ? "サポートMTG予約" : (isLineActive ? "LINE相談-" : "MEO相談-") + consultType.value,
+            };
+
+            if (modeSelect.value === "予約") {
+                const reserveInputs = document.querySelectorAll(".reserveDate");
+                data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
+            } else if (isLineActive) {
+                // LINE相談の場合
+                const type = consultType.value;
+                if (type === "リッチメニュー") {
+                    data.purpose = document.getElementById("rmPurpose").value;
+                    data.detail = document.getElementById("rmDetail").value;
+                } else if (type === "クーポン") {
+                    data.kind = document.getElementById("couponKind").value;
+                    data.name = document.getElementById("couponName").value;
+                    data.period = document.getElementById("couponPeriod").value;
+                    data.guide = document.getElementById("couponGuide").value;
+                    data.count = document.getElementById("couponCount").value;
+                    data.use = document.getElementById("couponUse").value;
+                } else if (type === "メニュー追加・変更") {
+                    data.action = document.getElementById("menuAction").value;
+                    data.detail = document.getElementById("menuDetail").value;
+                } else if (type === "その他") {
+                    data.detail = document.getElementById("otherDetail").value;
+                } else if (type === "配信代行依頼") {
+                    data.datetime = document.getElementById("sendDatetime").value;
+                    data.content = document.getElementById("sendContent").value;
+                    data.note = document.getElementById("sendNote").value;
+                }
+            } else {
+                // MEO相談の場合
+                const type = consultType.value;
+                if (type === "Googleビジネスプロフィール設定") {
+                    data.settingType = document.getElementById("gbpSettingType").value;
+                    data.detail = document.getElementById("gbpDetail").value;
+                } else if (type === "MEO対策相談") {
+                    data.issue = document.getElementById("meoIssue").value;
+                    data.keywords = document.getElementById("meoKeywords").value;
+                    data.targetArea = document.getElementById("meoTargetArea").value;
+                } else if (type === "クチコミ対応") {
+                    data.reviewUrl = document.getElementById("reviewUrl").value;
+                    data.reviewContent = document.getElementById("reviewContent").value;
+                    data.actionType = document.getElementById("reviewActionType").value;
+                } else if (type === "投稿作成依頼") {
+                    data.postContent = document.getElementById("postContent").value;
+                    data.postDate = document.getElementById("postDate").value;
+                    data.reference = document.getElementById("postReference").value;
+                } else if (type === "MEOその他") {
+                    data.detail = document.getElementById("meoOtherDetail").value;
+                }
+            }
+
+            console.log("送信データ:", data);
+
+            // GASへ送信
+            await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+                mode: "no-cors",
+            });
+
+            // 送信完了メッセージを表示
+            alert("送信しました！");
+
+            // LIFFウィンドウを閉じる
+            if (liff.isInClient()) {
+                liff.closeWindow();
+            } else {
+                // ブラウザで開いている場合は成功画面を表示
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('success').style.display = 'block';
+            }
+        } catch (error) {
+            console.error("エラーが発生しました:", error);
+            alert("送信中にエラーが発生しました。もう一度お試しください。");
+            document.getElementById('loading').style.display = 'none';
+            document.querySelector(".form-container").style.display = 'block';
+        }
+    }
+
+    function resetForm() {
+        // フォームをリセットして初期表示に戻す
+        document.getElementById('success').style.display = 'none';
+        document.querySelector(".form-container").style.display = 'block';
+
+        // 入力フィールドをクリア
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                input.checked = false;
+                if (input.parentNode.classList.contains('checked')) {
+                    input.parentNode.classList.remove('checked');
+                }
+            } else {
+                input.value = '';
+            }
+        });
+
+        // 最初のモードタブを選択状態にする
+        const modeTabs = document.querySelectorAll(".mode-tab");
+        modeTabs.forEach((tab, index) => {
+            if (index === 0) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+
+        // LINE/MEOタブはLINEを選択状態に
+        const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
+        consultTypeTabs.forEach(tab => {
+            if (tab.classList.contains('line')) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+
+        // コンテンツ表示を初期状態に
+        document.querySelector(".line-content").classList.add("visible");
+        document.querySelector(".meo-content").classList.remove("visible");
+
+        // 最初のセクションを表示
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+        document.getElementById("予約").classList.add("visible");
+
+        // 追加された日付入力欄をクリア
+        document.getElementById("optionalDates").innerHTML = '';
+    }
+
+    // メニュー操作が変更されたときの処理を追加
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuAction = document.getElementById("menuAction");
+        const existingMenuGroup = document.getElementById("existingMenuGroup");
+
+        if (menuAction && existingMenuGroup) {
+            menuAction.addEventListener("change", () => {
+                const action = menuAction.value;
+                // 変更・削除の場合は既存メニュー欄を強調表示
+                if (action === "変更" || action === "削除") {
+                    existingMenuGroup.classList.add("highlighted");
+                    document.querySelector("#existingMenuGroup .conditional-badge").textContent = "必須";
+                    document.querySelector("#existingMenuGroup .conditional-badge").className = "required-badge";
+                } else {
+                    existingMenuGroup.classList.remove("highlighted");
+                    document.querySelector("#existingMenuGroup .conditional-badge").textContent = "変更・削除時は必須";
+                    document.querySelector("#existingMenuGroup .conditional-badge").className = "conditional-badge";
+                }
+            });
+        }
     });
-
-    // 送信完了メッセージを表示
-    alert("送信しました！");
-    
-    // LIFFウィンドウを閉じる
-    if (liff.isInClient()) {
-      liff.closeWindow();
-    } else {
-      // ブラウザで開いている場合は成功画面を表示
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('success').style.display = 'block';
-    }
-  } catch (error) {
-    console.error("エラーが発生しました:", error);
-    alert("送信中にエラーが発生しました。もう一度お試しください。");
-    document.getElementById('loading').style.display = 'none';
-    document.querySelector(".form-container").style.display = 'block';
-  }
-}
-
-function resetForm() {
-  // フォームをリセットして初期表示に戻す
-  document.getElementById('success').style.display = 'none';
-  document.querySelector(".form-container").style.display = 'block';
-  
-  // 入力フィールドをクリア
-  const inputs = document.querySelectorAll('input, textarea, select');
-  inputs.forEach(input => {
-    if (input.type === 'checkbox') {
-      input.checked = false;
-      if (input.parentNode.classList.contains('checked')) {
-        input.parentNode.classList.remove('checked');
-      }
-    } else {
-      input.value = '';
-    }
-  });
-  
-  // 最初のモードタブを選択状態にする
-  const modeTabs = document.querySelectorAll(".mode-tab");
-  modeTabs.forEach((tab, index) => {
-    if (index === 0) {
-      tab.classList.add('active');
-    } else {
-      tab.classList.remove('active');
-    }
-  });
-  
-  // LINE/MEOタブはLINEを選択状態に
-  const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
-  consultTypeTabs.forEach(tab => {
-    if (tab.classList.contains('line')) {
-      tab.classList.add('active');
-    } else {
-      tab.classList.remove('active');
-    }
-  });
-  
-  // コンテンツ表示を初期状態に
-  document.querySelector(".line-content").classList.add("visible");
-  document.querySelector(".meo-content").classList.remove("visible");
-  
-  // 最初のセクションを表示
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
-  document.getElementById("予約").classList.add("visible");
-  
-  // 追加された日付入力欄をクリア
-  document.getElementById("optionalDates").innerHTML = '';
-}
-  </script>
+</script>
 </body>
+
 </html>
