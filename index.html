@@ -508,7 +508,7 @@
         const formContainer = document.querySelector(".form-container");
         const modeTabs = document.querySelectorAll(".mode-tab");
         const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
-    
+
         // モードタブ切り替え
         modeTabs.forEach(tab => {
             tab.addEventListener("click", () => {
@@ -516,14 +516,14 @@
                 modeTabs.forEach(t => t.classList.remove("active"));
                 // クリックされたタブに active クラスを追加
                 tab.classList.add("active");
-    
+
                 const mode = tab.dataset.mode;
                 modeSelect.value = mode;
-    
+
                 // セクションの表示切り替え
                 document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
                 document.getElementById(mode).classList.add("visible");
-                
+
                 // 相談モードの場合、LINE/MEOのタブ表示を初期化
                 if (mode === "相談") {
                     // デフォルトでLINEタブをアクティブに
@@ -534,15 +534,15 @@
                             t.classList.remove("active");
                         }
                     });
-                    
+
                     // コンテンツも適切に表示
                     document.querySelector(".line-content").classList.add("visible");
                     document.querySelector(".meo-content").classList.remove("visible");
-                    
+
                     // 相談タイプセレクトをリセット
                     if (consultType) consultType.value = "";
                     if (meoConsultType) meoConsultType.value = "";
-                    
+
                     // 相談タイプ内のセクションを非表示
                     document.querySelectorAll(".line-content .section, .meo-content .section").forEach(s => {
                         if (s.id !== "相談") s.classList.remove("visible");
@@ -550,7 +550,7 @@
                 }
             });
         });
-    
+
         // 相談タイプタブ(LINE/MEO)切り替え
         consultTypeTabs.forEach(tab => {
             tab.addEventListener("click", () => {
@@ -558,9 +558,9 @@
                 consultTypeTabs.forEach(t => t.classList.remove("active"));
                 // クリックされたタブに active クラスを追加
                 tab.classList.add("active");
-    
+
                 const type = tab.dataset.type;
-    
+
                 // コンテンツの表示切り替え
                 if (type === "line") {
                     document.querySelector(".line-content").classList.add("visible");
@@ -569,11 +569,11 @@
                     document.querySelector(".line-content").classList.remove("visible");
                     document.querySelector(".meo-content").classList.add("visible");
                 }
-    
+
                 // 相談タイプセレクトをリセット
                 if (consultType) consultType.value = "";
                 if (meoConsultType) meoConsultType.value = "";
-    
+
                 // セクションをすべて非表示
                 document.querySelectorAll(".line-content .section, .meo-content .section").forEach(s => {
                     if (!s.id.startsWith("相談")) {
@@ -582,7 +582,7 @@
                 });
             });
         });
-    
+
         // LINE相談タイプが変更されたときの処理
         if (consultType) {
             consultType.addEventListener("change", () => {
@@ -596,7 +596,7 @@
                 }
             });
         }
-    
+
         // MEO相談タイプが変更されたときの処理
         if (meoConsultType) {
             meoConsultType.addEventListener("change", () => {
@@ -610,33 +610,10 @@
                 }
             });
         }
-        
+
         // 初期状態では予約タブをアクティブに
         document.querySelector('.mode-tab[data-mode="予約"]').classList.add("active");
         document.getElementById("予約").classList.add("visible");
-    });
-
-        // LINE相談タイプが変更されたときの処理
-        if (consultType) {
-            consultType.addEventListener("change", () => {
-                document.querySelectorAll(".line-content .section").forEach(s => s.classList.remove("visible"));
-                const selected = consultType.value;
-                if (selected) {
-                    document.getElementById(selected).classList.add("visible");
-                }
-            });
-        }
-
-        // MEO相談タイプが変更されたときの処理
-        if (meoConsultType) {
-            meoConsultType.addEventListener("change", () => {
-                document.querySelectorAll(".meo-content .section").forEach(s => s.classList.remove("visible"));
-                const selected = meoConsultType.value;
-                if (selected) {
-                    document.getElementById(selected).classList.add("visible");
-                }
-            });
-        }
 
         // 日時フォーマット変更のための処理
         const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
@@ -685,6 +662,25 @@
             });
         }
 
+        // CSSスタイルを追加するための関数
+        function addErrorStyles() {
+            const styleEl = document.createElement('style');
+            styleEl.textContent = `
+            .error-field {
+                border: 2px solid #ff3860 !important;
+                background-color: rgba(255, 56, 96, 0.05) !important;
+            }
+            
+            .error-check {
+                color: #ff3860 !important;
+                font-weight: bold;
+            }
+        `;
+            document.head.appendChild(styleEl);
+        }
+
+        // スタイル追加を実行
+        addErrorStyles();
     });
 
     // 日時フォーマット変更のための関数
@@ -734,12 +730,12 @@
 
         const wrapper = document.createElement("div");
         wrapper.innerHTML = `
-    <div class="date-label">第${dateNum}希望（任意）</div>
-    <div class="date-input">
-      <input type="datetime-local" class="reserveDate" />
-      <button type="button" class="remove-date" onclick="this.parentNode.parentNode.remove()">×</button>
-    </div>
-  `;
+        <div class="date-label">第${dateNum}希望（任意）</div>
+        <div class="date-input">
+          <input type="datetime-local" class="reserveDate" />
+          <button type="button" class="remove-date" onclick="this.parentNode.parentNode.remove()">×</button>
+        </div>
+      `;
 
         container.appendChild(wrapper);
 
@@ -753,13 +749,13 @@
     // フォームバリデーション機能の強化
     function validateConsultForm() {
         const modeSelect = document.getElementById("mode");
-        
+
         // 予約モードの検証
         if (modeSelect.value === "予約") {
             // 必須の日時が入力されているか確認
             const requiredDates = document.querySelectorAll(".reserveDate.required");
             let allDatesValid = true;
-            
+
             requiredDates.forEach(input => {
                 if (!input.value) {
                     allDatesValid = false;
@@ -768,15 +764,15 @@
                     input.classList.remove('error-field');
                 }
             });
-            
+
             if (!allDatesValid) {
                 alert('必須の希望日時をすべて入力してください');
                 return false;
             }
-            
+
             return true;
         }
-        
+
         // 相談モードの検証
         else if (modeSelect.value === "相談") {
             // 同意チェックボックスの確認
@@ -788,10 +784,10 @@
             } else {
                 agreeCheck.parentNode.classList.remove('error-check');
             }
-    
+
             // 相談タイプ（LINE/MEO）の判定
             const isLineActive = document.querySelector('.consult-type-tab.line').classList.contains('active');
-            
+
             // LINE相談の場合
             if (isLineActive) {
                 const consultType = document.getElementById("consultType");
@@ -801,7 +797,7 @@
                     return false;
                 }
                 consultType.classList.remove('error-field');
-                
+
                 // 選択されたタイプに応じた必須項目のチェック
                 switch (consultType.value) {
                     case "リッチメニュー":
@@ -813,7 +809,7 @@
                         }
                         rmDetail.classList.remove('error-field');
                         break;
-                        
+
                     case "クーポン":
                         // クーポンの必須項目チェック
                         const couponFields = ["couponKind", "couponName", "couponPeriod", "couponCount"];
@@ -827,7 +823,7 @@
                             element.classList.remove('error-field');
                         }
                         break;
-                        
+
                     case "メニュー追加・変更":
                         // メニューの必須項目チェック
                         const menuFields = ["menuName", "menuPrice", "menuDuration", "menuCategory"];
@@ -840,10 +836,10 @@
                             }
                             element.classList.remove('error-field');
                         }
-                        
+
                         // 変更・削除時は既存メニュー名必須
                         const menuAction = document.getElementById("menuAction").value;
-                        if ((menuAction === "変更" || menuAction === "削除") && 
+                        if ((menuAction === "変更" || menuAction === "削除") &&
                             !document.getElementById("existingMenuName").value.trim()) {
                             alert('変更・削除対象の既存メニュー名を入力してください');
                             document.getElementById("existingMenuName").classList.add('error-field');
@@ -851,7 +847,7 @@
                         }
                         document.getElementById("existingMenuName").classList.remove('error-field');
                         break;
-                        
+
                     case "その他":
                         if (!document.getElementById("otherDetail").value.trim()) {
                             alert('相談内容の詳細を入力してください');
@@ -860,7 +856,7 @@
                         }
                         document.getElementById("otherDetail").classList.remove('error-field');
                         break;
-                        
+
                     case "配信代行依頼":
                         if (!document.getElementById("sendDatetime").value) {
                             alert('配信日時を入力してください');
@@ -868,7 +864,7 @@
                             return false;
                         }
                         document.getElementById("sendDatetime").classList.remove('error-field');
-                        
+
                         if (!document.getElementById("sendContent").value.trim()) {
                             alert('配信内容を入力してください');
                             document.getElementById("sendContent").classList.add('error-field');
@@ -877,23 +873,23 @@
                         document.getElementById("sendContent").classList.remove('error-field');
                         break;
                 }
-            } 
+            }
             // MEO相談の場合
             else {
-                const meoConsultType = .getElementById("meoConsultType");
+                const meoConsultType = document.getElementById("meoConsultType");
                 if (!meoConsultType || !meoConsultType.value) {
                     alert('MEO相談内容の種類を選択してください');
                     meoConsultType.classList.add('error-field');
                     return false;
                 }
                 meoConsultType.classList.remove('error-field');
-                
+
                 // 選択されたMEOタイプに応じた必須項目のチェック
                 switch (meoConsultType.value) {
                     case "Googleビジネスプロフィール設定":
                         const gbpFields = ["gbpSettingType", "gbpDetail"];
                         for (const field of gbpFields) {
-                            const element = .getElementById(field);
+                            const element = document.getElementById(field);
                             if (!element.value.trim()) {
                                 alert(element.previousElementSibling.querySelector('label').textContent + 'を入力してください');
                                 element.classList.add('error-field');
@@ -902,36 +898,36 @@
                             element.classList.remove('error-field');
                         }
                         break;
-                        
+
                     case "MEO対策相談":
-                        if (!.getElementById("meoIssue").value.trim()) {
+                        if (!document.getElementById("meoIssue").value.trim()) {
                             alert('現状の課題を入力してください');
-                            .getElementById("meoIssue").classList.add('error-field');
+                            document.getElementById("meoIssue").classList.add('error-field');
                             return false;
                         }
-                        .getElementById("meoIssue").classList.remove('error-field');
+                        document.getElementById("meoIssue").classList.remove('error-field');
                         break;
-                        
+
                     case "クチコミ対応":
-                        if (!.getElementById("reviewContent").value.trim()) {
+                        if (!document.getElementById("reviewContent").value.trim()) {
                             alert('クチコミ内容を入力してください');
-                            .getElementById("reviewContent").classList.add('error-field');
+                            document.getElementById("reviewContent").classList.add('error-field');
                             return false;
                         }
-                        .getElementById("reviewContent").classList.remove('error-field');
+                        document.getElementById("reviewContent").classList.remove('error-field');
                         break;
-                        
+
                     case "投稿作成依頼":
-                        if (!.getElementById("postContent").value.trim()) {
+                        if (!document.getElementById("postContent").value.trim()) {
                             alert('投稿内容を入力してください');
-                            .getElementById("postContent").classList.add('error-field');
+                            document.getElementById("postContent").classList.add('error-field');
                             return false;
                         }
-                        .getElementById("postContent").classList.remove('error-field');
+                        document.getElementById("postContent").classList.remove('error-field');
                         break;
-                        
+
                     case "MEOその他":
-                        if (!.getElementById("meoOtherDetail").value.trim()) {
+                        if (!document.getElementById("meoOtherDetail").value.trim()) {
                             alert('相談内容を入力してください');
                             document.getElementById("meoOtherDetail").classList.add('error-field');
                             return false;
@@ -941,25 +937,25 @@
                 }
             }
         }
-        
+
         return true;
     }
 
     async function submitForm() {
-    // 送信フラグ - 二重送信防止
+        // 送信フラグ - 二重送信防止
         if (window.isSubmitting) {
             console.log("送信処理中です。しばらくお待ちください。");
             return;
         }
-        
+
         try {
             window.isSubmitting = true; // 送信中フラグをセット
-            
+
             const modeSelect = document.getElementById("mode");
             const mode = modeSelect.value; // 予約または相談
             const isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
             let consultTypeValue = "";
-            
+
             // 相談モードの場合、適切なコンサルトタイプを取得
             if (mode === "相談") {
                 if (isLineActive) {
@@ -970,33 +966,33 @@
                     consultTypeValue = meoConsultType ? meoConsultType.value : "";
                 }
             }
-    
+
             // フォームバリデーション
             if (!validateConsultForm()) {
                 window.isSubmitting = false; // バリデーション失敗時はフラグをリセット
                 return; // バリデーション失敗時は処理を中断
             }
-    
+
             // ローディング表示
             document.getElementById('loading').style.display = 'block';
             document.querySelector(".form-container").style.display = 'none';
-    
+
             // LIFF初期化と送信処理
             try {
                 await liff.init({ liffId: "2007228552-OdkKEe6Y" });
                 const profile = await liff.getProfile();
                 const context = liff.getContext();
-                
+
                 if (!context || !context.userId) {
                     throw new Error("LIFFのコンテキスト情報が取得できませんでした");
                 }
-    
+
                 // データオブジェクトの基本構造
                 const data = {
                     name: profile.displayName,
                     userId: context.userId
                 };
-                
+
                 // タイプの設定（明示的に文字列化）
                 if (mode === "予約") {
                     data.type = "サポートMTG予約";
@@ -1005,23 +1001,23 @@
                     if (!consultTypeValue) {
                         throw new Error("相談タイプが選択されていません");
                     }
-                    
-                    data.type = isLineActive ? 
-                        "LINE相談-" + consultTypeValue : 
+
+                    data.type = isLineActive ?
+                        "LINE相談-" + consultTypeValue :
                         "MEO相談-" + consultTypeValue;
                 }
-    
+
                 console.log("Mode:", mode);
                 console.log("ConsultType:", consultTypeValue);
                 console.log("Type being set:", data.type);
-    
+
                 // モードに応じたデータ構築
                 if (mode === "予約") {
                     const reserveInputs = document.querySelectorAll(".reserveDate");
                     data.dates = Array.from(reserveInputs)
                         .map(input => input.value)
                         .filter(v => v);
-                        
+
                     if (data.dates.length === 0) {
                         throw new Error("希望日時が選択されていません");
                     }
@@ -1093,9 +1089,9 @@
                         }
                     }
                 }
-    
+
                 console.log("送信データ:", data);
-    
+
                 // GASへ送信 - データをJSON文字列化し一度だけ送信
                 const response = await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
                     method: "POST",
@@ -1105,7 +1101,7 @@
                     body: JSON.stringify(data),
                     mode: "no-cors",
                 });
-    
+
                 // LIFFウィンドウを閉じる前にタイムアウト（処理完了を待つ）
                 setTimeout(() => {
                     if (liff.isInClient()) {
@@ -1117,7 +1113,7 @@
                     }
                     window.isSubmitting = false; // 送信完了後にフラグをリセット
                 }, 1000);
-                
+
             } catch (liffError) {
                 console.error("LIFF初期化エラー:", liffError);
                 alert("LINE連携エラー: " + liffError.message);
@@ -1133,7 +1129,6 @@
             window.isSubmitting = false;
         }
     }
-
     function resetForm() {
         // フォームをリセットして初期表示に戻す
         document.getElementById('success').style.display = 'none';
@@ -1190,7 +1185,7 @@
         if (submitBtn) {
             // 既存のイベントリスナーをクリア（念のため）
             submitBtn.replaceWith(submitBtn.cloneNode(true));
-            
+
             // 新しいボタンを取得して1回だけイベントリスナーを設定
             const newSubmitBtn = document.querySelector('.submit-btn');
             newSubmitBtn.addEventListener('click', function (e) {
@@ -1199,7 +1194,7 @@
             });
         }
     });
-    
+
     // MEO相談タイプが変更されたときの処理
     const meoConsultType = document.getElementById("meoConsultType");
     if (meoConsultType) {
@@ -1223,26 +1218,7 @@
             console.log("MEO相談タイプ変更:", selected);
         });
     }
-    // CSSスタイルを追加するための関数
-    function addErrorStyles() {
-        const styleEl = document.createElement('style');
-        styleEl.textContent = `
-            .error-field {
-                border: 2px solid #ff3860 !important;
-                background-color: rgba(255, 56, 96, 0.05) !important;
-            }
-            
-            .error-check {
-                color: #ff3860 !important;
-                font-weight: bold;
-            }
-        `;
-        document.head.appendChild(styleEl);
-    }
-    
-    // スタイル追加を実行
-    document.addEventListener('DOMContentLoaded', addErrorStyles);
-});
+
 </script>
 </body>
 
