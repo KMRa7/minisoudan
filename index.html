@@ -508,7 +508,7 @@
         const formContainer = document.querySelector(".form-container");
         const modeTabs = document.querySelectorAll(".mode-tab");
         const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
-
+    
         // モードタブ切り替え
         modeTabs.forEach(tab => {
             tab.addEventListener("click", () => {
@@ -516,16 +516,41 @@
                 modeTabs.forEach(t => t.classList.remove("active"));
                 // クリックされたタブに active クラスを追加
                 tab.classList.add("active");
-
+    
                 const mode = tab.dataset.mode;
                 modeSelect.value = mode;
-
+    
                 // セクションの表示切り替え
                 document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
                 document.getElementById(mode).classList.add("visible");
+                
+                // 相談モードの場合、LINE/MEOのタブ表示を初期化
+                if (mode === "相談") {
+                    // デフォルトでLINEタブをアクティブに
+                    consultTypeTabs.forEach(t => {
+                        if (t.classList.contains('line')) {
+                            t.classList.add("active");
+                        } else {
+                            t.classList.remove("active");
+                        }
+                    });
+                    
+                    // コンテンツも適切に表示
+                    document.querySelector(".line-content").classList.add("visible");
+                    document.querySelector(".meo-content").classList.remove("visible");
+                    
+                    // 相談タイプセレクトをリセット
+                    if (consultType) consultType.value = "";
+                    if (meoConsultType) meoConsultType.value = "";
+                    
+                    // 相談タイプ内のセクションを非表示
+                    document.querySelectorAll(".line-content .section, .meo-content .section").forEach(s => {
+                        if (s.id !== "相談") s.classList.remove("visible");
+                    });
+                }
             });
         });
-
+    
         // 相談タイプタブ(LINE/MEO)切り替え
         consultTypeTabs.forEach(tab => {
             tab.addEventListener("click", () => {
@@ -533,9 +558,9 @@
                 consultTypeTabs.forEach(t => t.classList.remove("active"));
                 // クリックされたタブに active クラスを追加
                 tab.classList.add("active");
-
+    
                 const type = tab.dataset.type;
-
+    
                 // コンテンツの表示切り替え
                 if (type === "line") {
                     document.querySelector(".line-content").classList.add("visible");
@@ -544,19 +569,52 @@
                     document.querySelector(".line-content").classList.remove("visible");
                     document.querySelector(".meo-content").classList.add("visible");
                 }
-
+    
                 // 相談タイプセレクトをリセット
                 if (consultType) consultType.value = "";
                 if (meoConsultType) meoConsultType.value = "";
-
+    
                 // セクションをすべて非表示
-                document.querySelectorAll("#相談 .section").forEach(s => {
+                document.querySelectorAll(".line-content .section, .meo-content .section").forEach(s => {
                     if (!s.id.startsWith("相談")) {
                         s.classList.remove("visible");
                     }
                 });
             });
         });
+    
+        // LINE相談タイプが変更されたときの処理
+        if (consultType) {
+            consultType.addEventListener("change", () => {
+                document.querySelectorAll(".line-content .section").forEach(s => s.classList.remove("visible"));
+                const selected = consultType.value;
+                if (selected) {
+                    const targetSection = document.getElementById(selected);
+                    if (targetSection) {
+                        targetSection.classList.add("visible");
+                    }
+                }
+            });
+        }
+    
+        // MEO相談タイプが変更されたときの処理
+        if (meoConsultType) {
+            meoConsultType.addEventListener("change", () => {
+                document.querySelectorAll(".meo-content .section").forEach(s => s.classList.remove("visible"));
+                const selected = meoConsultType.value;
+                if (selected) {
+                    const targetSection = document.getElementById(selected);
+                    if (targetSection) {
+                        targetSection.classList.add("visible");
+                    }
+                }
+            });
+        }
+        
+        // 初期状態では予約タブをアクティブに
+        document.querySelector('.mode-tab[data-mode="予約"]').classList.add("active");
+        document.getElementById("予約").classList.add("visible");
+    });
 
         // LINE相談タイプが変更されたときの処理
         if (consultType) {
@@ -822,7 +880,7 @@
             } 
             // MEO相談の場合
             else {
-                const meoConsultType = document.getElementById("meoConsultType");
+                const meoConsultType = .getElementById("meoConsultType");
                 if (!meoConsultType || !meoConsultType.value) {
                     alert('MEO相談内容の種類を選択してください');
                     meoConsultType.classList.add('error-field');
@@ -835,7 +893,7 @@
                     case "Googleビジネスプロフィール設定":
                         const gbpFields = ["gbpSettingType", "gbpDetail"];
                         for (const field of gbpFields) {
-                            const element = document.getElementById(field);
+                            const element = .getElementById(field);
                             if (!element.value.trim()) {
                                 alert(element.previousElementSibling.querySelector('label').textContent + 'を入力してください');
                                 element.classList.add('error-field');
@@ -846,34 +904,34 @@
                         break;
                         
                     case "MEO対策相談":
-                        if (!document.getElementById("meoIssue").value.trim()) {
+                        if (!.getElementById("meoIssue").value.trim()) {
                             alert('現状の課題を入力してください');
-                            document.getElementById("meoIssue").classList.add('error-field');
+                            .getElementById("meoIssue").classList.add('error-field');
                             return false;
                         }
-                        document.getElementById("meoIssue").classList.remove('error-field');
+                        .getElementById("meoIssue").classList.remove('error-field');
                         break;
                         
                     case "クチコミ対応":
-                        if (!document.getElementById("reviewContent").value.trim()) {
+                        if (!.getElementById("reviewContent").value.trim()) {
                             alert('クチコミ内容を入力してください');
-                            document.getElementById("reviewContent").classList.add('error-field');
+                            .getElementById("reviewContent").classList.add('error-field');
                             return false;
                         }
-                        document.getElementById("reviewContent").classList.remove('error-field');
+                        .getElementById("reviewContent").classList.remove('error-field');
                         break;
                         
                     case "投稿作成依頼":
-                        if (!document.getElementById("postContent").value.trim()) {
+                        if (!.getElementById("postContent").value.trim()) {
                             alert('投稿内容を入力してください');
-                            document.getElementById("postContent").classList.add('error-field');
+                            .getElementById("postContent").classList.add('error-field');
                             return false;
                         }
-                        document.getElementById("postContent").classList.remove('error-field');
+                        .getElementById("postContent").classList.remove('error-field');
                         break;
                         
                     case "MEOその他":
-                        if (!document.getElementById("meoOtherDetail").value.trim()) {
+                        if (!.getElementById("meoOtherDetail").value.trim()) {
                             alert('相談内容を入力してください');
                             document.getElementById("meoOtherDetail").classList.add('error-field');
                             return false;
