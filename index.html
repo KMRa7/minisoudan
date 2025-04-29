@@ -730,27 +730,27 @@
             const modeSelect = document.getElementById("mode");
             const isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
             const consultType = isLineActive ? document.getElementById("consultType") : document.getElementById("meoConsultType");
-
+    
             // フォームバリデーション
             if (!validateConsultForm()) {
                 return; // バリデーション失敗時は処理を中断
             }
-
+    
             // ローディング表示
             document.getElementById('loading').style.display = 'block';
             document.querySelector(".form-container").style.display = 'none';
-
+    
             await liff.init({ liffId: "2007228552-OdkKEe6Y" });
             const profile = await liff.getProfile();
             const context = liff.getContext();
             console.log("context.userId:", context.userId);
-
+    
             const data = {
                 name: profile.displayName,
                 userId: context.userId,
-                type: modeSelect.value === "予約" ? "サポートMTG予約" : (isLineActive ? "LINE相談-" : "MEO相談-") + consultType.value,
+                type: modeSelect.value === "予約" ? "サポートMTG予約" : (isLineActive ? "LINE相談-" : "MEO相談-") + (consultType ? consultType.value : ""),
             };
-
+    
             if (modeSelect.value === "予約") {
                 const reserveInputs = document.querySelectorAll(".reserveDate");
                 data.dates = Array.from(reserveInputs).map(input => input.value).filter(v => v);
@@ -769,7 +769,14 @@
                     data.use = document.getElementById("couponUse").value;
                 } else if (type === "メニュー追加・変更") {
                     data.action = document.getElementById("menuAction").value;
-                    data.detail = document.getElementById("menuDetail").value;
+                    data.menuName = document.getElementById("menuName").value;
+                    data.menuPrice = document.getElementById("menuPrice").value;
+                    data.menuDuration = document.getElementById("menuDuration").value;
+                    data.menuCategory = document.getElementById("menuCategory").value;
+                    data.menuDescription = document.getElementById("menuDescription").value;
+                    data.menuNotes = document.getElementById("menuNotes").value;
+                    data.existingMenuName = document.getElementById("existingMenuName").value;
+                    data.hasMenuImage = document.getElementById("hasMenuImage").value;
                 } else if (type === "その他") {
                     data.detail = document.getElementById("otherDetail").value;
                 } else if (type === "配信代行依頼") {
@@ -779,7 +786,7 @@
                 }
             } else {
                 // MEO相談の場合
-                const type = consultType.value;
+                const type = document.getElementById("meoConsultType").value;
                 if (type === "Googleビジネスプロフィール設定") {
                     data.settingType = document.getElementById("gbpSettingType").value;
                     data.detail = document.getElementById("gbpDetail").value;
@@ -799,9 +806,9 @@
                     data.detail = document.getElementById("meoOtherDetail").value;
                 }
             }
-
+    
             console.log("送信データ:", data);
-
+    
             // GASへ送信
             await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
                 method: "POST",
@@ -811,10 +818,10 @@
                 body: JSON.stringify(data),
                 mode: "no-cors",
             });
-
-            // 送信完了メッセージを表示
-            alert("送信しました！");
-
+    
+            // 送信完了メッセージを表示 - alertを削除してUIのみで対応
+            // alert("送信しました！"); - この行を削除
+    
             // LIFFウィンドウを閉じる
             if (liff.isInClient()) {
                 liff.closeWindow();
