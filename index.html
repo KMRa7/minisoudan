@@ -941,58 +941,66 @@
         return true;
     }
 
+    // submitForm関数を修正
     async function submitForm() {
         // 送信フラグ - 二重送信防止
         if (window.isSubmitting) {
             console.log("送信処理中です。しばらくお待ちください。");
             return;
         }
-
+    
         try {
             window.isSubmitting = true; // 送信中フラグをセット
-
+    
             const modeSelect = document.getElementById("mode");
             const mode = modeSelect.value; // 予約または相談
-            const isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
+            
+            // 相談タイプの判定を改善
             let consultTypeValue = "";
-
-            // 相談モードの場合、適切なコンサルトタイプを取得
+            let isLineActive = false;
+            
             if (mode === "相談") {
+                // LINE/MEOタブの判定を確実に
+                isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
+                
                 if (isLineActive) {
                     const consultType = document.getElementById("consultType");
                     consultTypeValue = consultType ? consultType.value : "";
+                    console.log("LINE相談タイプ:", consultTypeValue);
                 } else {
                     const meoConsultType = document.getElementById("meoConsultType");
                     consultTypeValue = meoConsultType ? meoConsultType.value : "";
+                    console.log("MEO相談タイプ:", consultTypeValue);
                 }
             }
-
+    
             // フォームバリデーション
             if (!validateConsultForm()) {
                 window.isSubmitting = false; // バリデーション失敗時はフラグをリセット
                 return; // バリデーション失敗時は処理を中断
             }
-
+    
             // ローディング表示
             document.getElementById('loading').style.display = 'block';
             document.querySelector(".form-container").style.display = 'none';
-
+    
             // LIFF初期化と送信処理
             try {
                 await liff.init({ liffId: "2007228552-OdkKEe6Y" });
                 const profile = await liff.getProfile();
                 const context = liff.getContext();
-
+    
                 if (!context || !context.userId) {
                     throw new Error("LIFFのコンテキスト情報が取得できませんでした");
                 }
-
+    
                 // データオブジェクトの基本構造
                 const data = {
                     name: profile.displayName,
-                    userId: context.userId
+                    userId: context.userId,
+                    mode: mode  // mode値も明示的に送信
                 };
-
+    
                 // タイプの設定（明示的に文字列化）
                 if (mode === "予約") {
                     data.type = "サポートMTG予約";
@@ -1001,27 +1009,35 @@
                     if (!consultTypeValue) {
                         throw new Error("相談タイプが選択されていません");
                     }
-
-                    data.type = isLineActive ?
-                        "LINE相談-" + consultTypeValue :
-                        "MEO相談-" + consultTypeValue;
+    
+                    // 相談タイプを明確に設定
+                    if (isLineActive) {
+                        data.type = "LINE相談";
+                        data.consultType = consultTypeValue;
+                    } else {
+                        data.type = "MEO相談";
+                        data.consultType = consultTypeValue;
+                    }
                 }
-
-                console.log("Mode:", mode);
-                console.log("ConsultType:", consultTypeValue);
-                console.log("Type being set:", data.type);
-
+    
+                console.log("送信タイプ:", data.type);
+                console.log("相談タイプ:", data.consultType || "なし");
+    
                 // モードに応じたデータ構築
                 if (mode === "予約") {
                     const reserveInputs = document.querySelectorAll(".reserveDate");
                     data.dates = Array.from(reserveInputs)
                         .map(input => input.value)
                         .filter(v => v);
-
+    
                     if (data.dates.length === 0) {
                         throw new Error("希望日時が選択されていません");
                     }
                 } else if (mode === "相談") {
+                    // 同意チェック状態を追加
+                    const agreeCheck = document.getElementById("agreeCheck");
+                    data.agreed = agreeCheck ? agreeCheck.checked : false;
+                    
                     if (isLineActive) {
                         // LINE相談の場合
                         switch (consultTypeValue) {
@@ -1031,7 +1047,7 @@
                                 break;
                             case "クーポン":
                                 data.kind = document.getElementById("couponKind").value;
-                                data.name = document.getElementById("couponName").value;
+                                data.couponName = document.getElementById("couponName").value;
                                 data.period = document.getElementById("couponPeriod").value;
                                 data.guide = document.getElementById("couponGuide").value;
                                 data.count = document.getElementById("couponCount").value;
@@ -1057,7 +1073,9 @@
                                 data.note = document.getElementById("sendNote").value;
                                 break;
                             default:
-                                throw new Error("不明なLINE相談タイプ: " + consultTypeValue);
+                                console.warn("不明なLINE相談タイプ:", consultTypeValue);
+                                // デフォルト値を設定
+                                data.detail = "タイプ: " + consultTypeValue;
                         }
                     } else {
                         // MEO相談の場合
@@ -1085,13 +1103,15 @@
                                 data.detail = document.getElementById("meoOtherDetail").value;
                                 break;
                             default:
-                                throw new Error("不明なMEO相談タイプ: " + consultTypeValue);
+                                console.warn("不明なMEO相談タイプ:", consultTypeValue);
+                                // デフォルト値を設定
+                                data.detail = "タイプ: " + consultTypeValue;
                         }
                     }
                 }
-
+    
                 console.log("送信データ:", data);
-
+    
                 // GASへ送信 - データをJSON文字列化し一度だけ送信
                 const response = await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
                     method: "POST",
@@ -1101,7 +1121,7 @@
                     body: JSON.stringify(data),
                     mode: "no-cors",
                 });
-
+    
                 // LIFFウィンドウを閉じる前にタイムアウト（処理完了を待つ）
                 setTimeout(() => {
                     if (liff.isInClient()) {
@@ -1113,7 +1133,7 @@
                     }
                     window.isSubmitting = false; // 送信完了後にフラグをリセット
                 }, 1000);
-
+    
             } catch (liffError) {
                 console.error("LIFF初期化エラー:", liffError);
                 alert("LINE連携エラー: " + liffError.message);
@@ -1129,6 +1149,7 @@
             window.isSubmitting = false;
         }
     }
+    
     function resetForm() {
         // フォームをリセットして初期表示に戻す
         document.getElementById('success').style.display = 'none';
