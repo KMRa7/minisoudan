@@ -498,58 +498,59 @@
 </div>
 
 <script>
-
+    
     document.addEventListener('DOMContentLoaded', function () {
-        const modeSelect = document.getElementById("mode");
         const consultType = document.getElementById("consultType");
         const meoConsultType = document.getElementById("meoConsultType");
-        const loadingEl = document.getElementById("loading");
-        const successEl = document.getElementById("success");
-        const formContainer = document.querySelector(".form-container");
-        const modeTabs = document.querySelectorAll(".mode-tab");
-        const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
-
-        // モードタブ切り替え
-        modeTabs.forEach(tab => {
-            tab.addEventListener("click", () => {
-                // 全てのタブから active クラスを削除
-                modeTabs.forEach(t => t.classList.remove("active"));
-                // クリックされたタブに active クラスを追加
-                tab.classList.add("active");
-
-                const mode = tab.dataset.mode;
-                modeSelect.value = mode;
-
-                // セクションの表示切り替え
-                document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
-                document.getElementById(mode).classList.add("visible");
-
-                // 相談モードの場合、LINE/MEOのタブ表示を初期化
-                if (mode === "相談") {
-                    // デフォルトでLINEタブをアクティブに
-                    consultTypeTabs.forEach(t => {
-                        if (t.classList.contains('line')) {
-                            t.classList.add("active");
-                        } else {
-                            t.classList.remove("active");
-                        }
-                    });
-
-                    // コンテンツも適切に表示
-                    document.querySelector(".line-content").classList.add("visible");
-                    document.querySelector(".meo-content").classList.remove("visible");
-
-                    // 相談タイプセレクトをリセット
-                    if (consultType) consultType.value = "";
-                    if (meoConsultType) meoConsultType.value = "";
-
-                    // 相談タイプ内のセクションを非表示
-                    document.querySelectorAll(".line-content .section, .meo-content .section").forEach(s => {
-                        if (s.id !== "相談") s.classList.remove("visible");
-                    });
+        
+        // LINE相談タイプが変更されたときの処理
+        if (consultType) {
+            consultType.addEventListener("change", () => {
+                // 全てのセクションを非表示
+                document.querySelectorAll(".line-content .section").forEach(s => {
+                    if (!s.id.startsWith("相談")) {
+                        s.classList.remove("visible");
+                    }
+                });
+                
+                // 選択したタイプのセクションを表示
+                const selected = consultType.value;
+                if (selected) {
+                    const targetSection = document.getElementById(selected);
+                    if (targetSection) {
+                        targetSection.classList.add("visible");
+                    } else {
+                        console.error("セクションが見つかりません:", selected);
+                    }
                 }
+                console.log("LINE相談タイプ変更:", selected);
             });
-        });
+        }
+        
+        // MEO相談タイプが変更されたときの処理
+        if (meoConsultType) {
+            meoConsultType.addEventListener("change", () => {
+                // 全てのセクションを非表示
+                document.querySelectorAll(".meo-content .section").forEach(s => {
+                    if (!s.id.startsWith("相談")) {
+                        s.classList.remove("visible");
+                    }
+                });
+                
+                // 選択したタイプのセクションを表示
+                const selected = meoConsultType.value;
+                if (selected) {
+                    const targetSection = document.getElementById(selected);
+                    if (targetSection) {
+                        targetSection.classList.add("visible");
+                    } else {
+                        console.error("セクションが見つかりません:", selected);
+                    }
+                }
+                console.log("MEO相談タイプ変更:", selected);
+            });
+        }
+    });
 
         // 相談タイプタブ(LINE/MEO)切り替え
         consultTypeTabs.forEach(tab => {
@@ -942,213 +943,240 @@
     }
 
     // submitForm関数を修正
-    async function submitForm() {
-        // 送信フラグ - 二重送信防止
-        if (window.isSubmitting) {
-            console.log("送信処理中です。しばらくお待ちください。");
-            return;
+    // submitForm関数の修正版
+async function submitForm() {
+    // 送信フラグ - 二重送信防止
+    if (window.isSubmitting) {
+        console.log("送信処理中です。しばらくお待ちください。");
+        return;
+    }
+
+    try {
+        window.isSubmitting = true; // 送信中フラグをセット
+
+        const modeSelect = document.getElementById("mode");
+        const mode = modeSelect.value; // 予約または相談
+        
+        // 相談タイプの判定を改善
+        let consultTypeValue = "";
+        let isLineActive = false;
+        
+        if (mode === "相談") {
+            // LINE/MEOタブの判定
+            isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
+            
+            if (isLineActive) {
+                // LINE相談タイプの取得
+                const consultTypeSelect = document.getElementById("consultType");
+                consultTypeValue = consultTypeSelect ? consultTypeSelect.value : "";
+                
+                // 選択されているか確認
+                if (!consultTypeValue) {
+                    alert("LINE相談内容の種類を選択してください");
+                    if (consultTypeSelect) consultTypeSelect.classList.add('error-field');
+                    window.isSubmitting = false;
+                    return;
+                }
+                
+                console.log("LINE相談タイプ:", consultTypeValue);
+            } else {
+                // MEO相談タイプの取得
+                const meoConsultTypeSelect = document.getElementById("meoConsultType");
+                consultTypeValue = meoConsultTypeSelect ? meoConsultTypeSelect.value : "";
+                
+                // 選択されているか確認
+                if (!consultTypeValue) {
+                    alert("MEO相談内容の種類を選択してください");
+                    if (meoConsultTypeSelect) meoConsultTypeSelect.classList.add('error-field');
+                    window.isSubmitting = false;
+                    return;
+                }
+                
+                console.log("MEO相談タイプ:", consultTypeValue);
+            }
         }
-    
+
+        // フォームバリデーション
+        if (!validateConsultForm()) {
+            window.isSubmitting = false; // バリデーション失敗時はフラグをリセット
+            return; // バリデーション失敗時は処理を中断
+        }
+
+        // ローディング表示
+        document.getElementById('loading').style.display = 'block';
+        document.querySelector(".form-container").style.display = 'none';
+
+        // LIFF初期化と送信処理
         try {
-            window.isSubmitting = true; // 送信中フラグをセット
-    
-            const modeSelect = document.getElementById("mode");
-            const mode = modeSelect.value; // 予約または相談
+            await liff.init({ liffId: "2007228552-OdkKEe6Y" });
             
-            // 相談タイプの判定を改善
-            let consultTypeValue = "";
-            let isLineActive = false;
+            // プロフィール情報の取得
+            let profile;
+            let userId;
             
-            if (mode === "相談") {
-                // LINE/MEOタブの判定を確実に
-                isLineActive = document.querySelector('.consult-type-tab.line.active') !== null;
+            try {
+                profile = await liff.getProfile();
+                const context = liff.getContext();
+                userId = context && context.userId ? context.userId : "";
+                
+                if (!userId) {
+                    console.warn("LIFFのUserID取得失敗、プロフィール情報のみ使用します");
+                }
+            } catch (profileError) {
+                console.warn("プロフィール取得エラー:", profileError);
+                profile = { displayName: "ゲスト" };
+                userId = "";
+            }
+
+            // データオブジェクトの基本構造
+            const data = {
+                name: profile.displayName,
+                userId: userId,
+                mode: mode,
+                timestamp: new Date().toISOString()
+            };
+
+            // タイプの設定
+            if (mode === "予約") {
+                data.type = "サポートMTG予約";
+            } else {
+                // 相談タイプ設定
+                if (isLineActive) {
+                    data.type = "LINE相談";
+                    data.consultType = consultTypeValue;
+                } else {
+                    data.type = "MEO相談";
+                    data.consultType = consultTypeValue;
+                }
+            }
+
+            console.log("送信タイプ:", data.type);
+            console.log("相談タイプ:", data.consultType || "なし");
+
+            // モードに応じたデータ構築
+            if (mode === "予約") {
+                const reserveInputs = document.querySelectorAll(".reserveDate");
+                data.dates = Array.from(reserveInputs)
+                    .map(input => input.value)
+                    .filter(v => v);
+
+                if (data.dates.length === 0) {
+                    throw new Error("希望日時が選択されていません");
+                }
+            } else if (mode === "相談") {
+                // 同意チェック状態を追加
+                const agreeCheck = document.getElementById("agreeCheck");
+                data.agreed = agreeCheck ? agreeCheck.checked : false;
                 
                 if (isLineActive) {
-                    const consultType = document.getElementById("consultType");
-                    consultTypeValue = consultType ? consultType.value : "";
-                    console.log("LINE相談タイプ:", consultTypeValue);
+                    // LINE相談の場合
+                    switch (consultTypeValue) {
+                        case "リッチメニュー":
+                            data.purpose = document.getElementById("rmPurpose").value;
+                            data.detail = document.getElementById("rmDetail").value;
+                            break;
+                        case "クーポン":
+                            data.kind = document.getElementById("couponKind").value;
+                            data.couponName = document.getElementById("couponName").value;
+                            data.period = document.getElementById("couponPeriod").value;
+                            data.guide = document.getElementById("couponGuide").value;
+                            data.count = document.getElementById("couponCount").value;
+                            data.use = document.getElementById("couponUse").value;
+                            break;
+                        case "メニュー追加・変更":
+                            data.action = document.getElementById("menuAction").value;
+                            data.menuName = document.getElementById("menuName").value;
+                            data.menuPrice = document.getElementById("menuPrice").value;
+                            data.menuDuration = document.getElementById("menuDuration").value;
+                            data.menuCategory = document.getElementById("menuCategory").value;
+                            data.menuDescription = document.getElementById("menuDescription").value;
+                            data.menuNotes = document.getElementById("menuNotes").value;
+                            data.existingMenuName = document.getElementById("existingMenuName").value;
+                            data.hasMenuImage = document.getElementById("hasMenuImage").value;
+                            break;
+                        case "その他":
+                            data.detail = document.getElementById("otherDetail").value;
+                            break;
+                        case "配信代行依頼":
+                            data.datetime = document.getElementById("sendDatetime").value;
+                            data.content = document.getElementById("sendContent").value;
+                            data.note = document.getElementById("sendNote").value;
+                            break;
+                        default:
+                            // 未知のタイプの場合でもデータは送信する
+                            data.detail = "未選択または不明なタイプです";
+                    }
                 } else {
-                    const meoConsultType = document.getElementById("meoConsultType");
-                    consultTypeValue = meoConsultType ? meoConsultType.value : "";
-                    console.log("MEO相談タイプ:", consultTypeValue);
+                    // MEO相談の場合
+                    switch (consultTypeValue) {
+                        case "Googleビジネスプロフィール設定":
+                            data.settingType = document.getElementById("gbpSettingType").value;
+                            data.detail = document.getElementById("gbpDetail").value;
+                            break;
+                        case "MEO対策相談":
+                            data.issue = document.getElementById("meoIssue").value;
+                            data.keywords = document.getElementById("meoKeywords").value;
+                            data.targetArea = document.getElementById("meoTargetArea").value;
+                            break;
+                        case "クチコミ対応":
+                            data.reviewUrl = document.getElementById("reviewUrl").value;
+                            data.reviewContent = document.getElementById("reviewContent").value;
+                            data.actionType = document.getElementById("reviewActionType").value;
+                            break;
+                        case "投稿作成依頼":
+                            data.postContent = document.getElementById("postContent").value;
+                            data.postDate = document.getElementById("postDate").value;
+                            data.reference = document.getElementById("postReference").value;
+                            break;
+                        case "MEOその他":
+                            data.detail = document.getElementById("meoOtherDetail").value;
+                            break;
+                        default:
+                            // 未知のタイプの場合でもデータは送信する
+                            data.detail = "未選択または不明なタイプです";
+                    }
                 }
             }
-    
-            // フォームバリデーション
-            if (!validateConsultForm()) {
-                window.isSubmitting = false; // バリデーション失敗時はフラグをリセット
-                return; // バリデーション失敗時は処理を中断
-            }
-    
-            // ローディング表示
-            document.getElementById('loading').style.display = 'block';
-            document.querySelector(".form-container").style.display = 'none';
-    
-            // LIFF初期化と送信処理
-            try {
-                await liff.init({ liffId: "2007228552-OdkKEe6Y" });
-                const profile = await liff.getProfile();
-                const context = liff.getContext();
-    
-                if (!context || !context.userId) {
-                    throw new Error("LIFFのコンテキスト情報が取得できませんでした");
-                }
-    
-                // データオブジェクトの基本構造
-                const data = {
-                    name: profile.displayName,
-                    userId: context.userId,
-                    mode: mode  // mode値も明示的に送信
-                };
-    
-                // タイプの設定（明示的に文字列化）
-                if (mode === "予約") {
-                    data.type = "サポートMTG予約";
+
+            console.log("送信データ:", data);
+
+            // GASへ送信
+            const response = await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+                mode: "no-cors",
+            });
+
+            // 結果表示
+            setTimeout(() => {
+                if (liff.isInClient()) {
+                    liff.closeWindow();
                 } else {
-                    // 相談タイプのチェック
-                    if (!consultTypeValue) {
-                        throw new Error("相談タイプが選択されていません");
-                    }
-    
-                    // 相談タイプを明確に設定
-                    if (isLineActive) {
-                        data.type = "LINE相談";
-                        data.consultType = consultTypeValue;
-                    } else {
-                        data.type = "MEO相談";
-                        data.consultType = consultTypeValue;
-                    }
+                    // ブラウザで開いている場合は成功画面を表示
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('success').style.display = 'block';
                 }
-    
-                console.log("送信タイプ:", data.type);
-                console.log("相談タイプ:", data.consultType || "なし");
-    
-                // モードに応じたデータ構築
-                if (mode === "予約") {
-                    const reserveInputs = document.querySelectorAll(".reserveDate");
-                    data.dates = Array.from(reserveInputs)
-                        .map(input => input.value)
-                        .filter(v => v);
-    
-                    if (data.dates.length === 0) {
-                        throw new Error("希望日時が選択されていません");
-                    }
-                } else if (mode === "相談") {
-                    // 同意チェック状態を追加
-                    const agreeCheck = document.getElementById("agreeCheck");
-                    data.agreed = agreeCheck ? agreeCheck.checked : false;
-                    
-                    if (isLineActive) {
-                        // LINE相談の場合
-                        switch (consultTypeValue) {
-                            case "リッチメニュー":
-                                data.purpose = document.getElementById("rmPurpose").value;
-                                data.detail = document.getElementById("rmDetail").value;
-                                break;
-                            case "クーポン":
-                                data.kind = document.getElementById("couponKind").value;
-                                data.couponName = document.getElementById("couponName").value;
-                                data.period = document.getElementById("couponPeriod").value;
-                                data.guide = document.getElementById("couponGuide").value;
-                                data.count = document.getElementById("couponCount").value;
-                                data.use = document.getElementById("couponUse").value;
-                                break;
-                            case "メニュー追加・変更":
-                                data.action = document.getElementById("menuAction").value;
-                                data.menuName = document.getElementById("menuName").value;
-                                data.menuPrice = document.getElementById("menuPrice").value;
-                                data.menuDuration = document.getElementById("menuDuration").value;
-                                data.menuCategory = document.getElementById("menuCategory").value;
-                                data.menuDescription = document.getElementById("menuDescription").value;
-                                data.menuNotes = document.getElementById("menuNotes").value;
-                                data.existingMenuName = document.getElementById("existingMenuName").value;
-                                data.hasMenuImage = document.getElementById("hasMenuImage").value;
-                                break;
-                            case "その他":
-                                data.detail = document.getElementById("otherDetail").value;
-                                break;
-                            case "配信代行依頼":
-                                data.datetime = document.getElementById("sendDatetime").value;
-                                data.content = document.getElementById("sendContent").value;
-                                data.note = document.getElementById("sendNote").value;
-                                break;
-                            default:
-                                console.warn("不明なLINE相談タイプ:", consultTypeValue);
-                                // デフォルト値を設定
-                                data.detail = "タイプ: " + consultTypeValue;
-                        }
-                    } else {
-                        // MEO相談の場合
-                        switch (consultTypeValue) {
-                            case "Googleビジネスプロフィール設定":
-                                data.settingType = document.getElementById("gbpSettingType").value;
-                                data.detail = document.getElementById("gbpDetail").value;
-                                break;
-                            case "MEO対策相談":
-                                data.issue = document.getElementById("meoIssue").value;
-                                data.keywords = document.getElementById("meoKeywords").value;
-                                data.targetArea = document.getElementById("meoTargetArea").value;
-                                break;
-                            case "クチコミ対応":
-                                data.reviewUrl = document.getElementById("reviewUrl").value;
-                                data.reviewContent = document.getElementById("reviewContent").value;
-                                data.actionType = document.getElementById("reviewActionType").value;
-                                break;
-                            case "投稿作成依頼":
-                                data.postContent = document.getElementById("postContent").value;
-                                data.postDate = document.getElementById("postDate").value;
-                                data.reference = document.getElementById("postReference").value;
-                                break;
-                            case "MEOその他":
-                                data.detail = document.getElementById("meoOtherDetail").value;
-                                break;
-                            default:
-                                console.warn("不明なMEO相談タイプ:", consultTypeValue);
-                                // デフォルト値を設定
-                                data.detail = "タイプ: " + consultTypeValue;
-                        }
-                    }
-                }
-    
-                console.log("送信データ:", data);
-    
-                // GASへ送信 - データをJSON文字列化し一度だけ送信
-                const response = await fetch("https://script.google.com/macros/s/AKfycbxfhwgqHIIBnR-Ic65l65aWYhmk_WRggLQgmUI64a930O0zVjPHArv6irS1N9GUiwTFWw/exec", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                    mode: "no-cors",
-                });
-    
-                // LIFFウィンドウを閉じる前にタイムアウト（処理完了を待つ）
-                setTimeout(() => {
-                    if (liff.isInClient()) {
-                        liff.closeWindow();
-                    } else {
-                        // ブラウザで開いている場合は成功画面を表示
-                        document.getElementById('loading').style.display = 'none';
-                        document.getElementById('success').style.display = 'block';
-                    }
-                    window.isSubmitting = false; // 送信完了後にフラグをリセット
-                }, 1000);
-    
-            } catch (liffError) {
-                console.error("LIFF初期化エラー:", liffError);
-                alert("LINE連携エラー: " + liffError.message);
-                document.getElementById('loading').style.display = 'none';
-                document.querySelector(".form-container").style.display = 'block';
-                window.isSubmitting = false;
-            }
-        } catch (error) {
-            console.error("エラーが発生しました:", error);
-            alert("送信エラー: " + error.message);
+                window.isSubmitting = false; // 送信完了後にフラグをリセット
+            }, 1000);
+
+        } catch (liffError) {
+            console.error("LIFF初期化エラー:", liffError);
+            alert("LINE連携エラー: " + liffError.message);
             document.getElementById('loading').style.display = 'none';
             document.querySelector(".form-container").style.display = 'block';
             window.isSubmitting = false;
         }
+    } catch (error) {
+        console.error("エラーが発生しました:", error);
+        alert("送信エラー: " + error.message);
+        document.getElementById('loading').style.display = 'none';
+        document.querySelector(".form-container").style.display = 'block';
+        window.isSubmitting = false;
     }
+}
     
     function resetForm() {
         // フォームをリセットして初期表示に戻す
