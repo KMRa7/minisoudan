@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
+<body>
 <div class="container">
     <div class="header">
         <h2>サポートフォーム</h2>
@@ -385,7 +386,7 @@
                                 <label>希望するキーワード</label>
                                 <span class="optional-badge">任意</span>
                             </div>
-                            <input type="text" id="meoKeywords" placeholder="例：〇〇 美容院、△△区 カフェなど" />
+                            <input type="text" id="meoKeyWords" placeholder="例：〇〇 美容院、△△区 カフェなど" />
                         </div>
                         <div class="form-group">
                             <div class="line-input-header">
@@ -498,15 +499,78 @@
 </div>
 
 <script>
-    
     document.addEventListener('DOMContentLoaded', function () {
+        // 変数宣言
+        const modeSelect = document.getElementById("mode");
         const consultType = document.getElementById("consultType");
         const meoConsultType = document.getElementById("meoConsultType");
+        const modeTabs = document.querySelectorAll(".mode-tab");
+        const consultTypeTabs = document.querySelectorAll(".consult-type-tab");
         
-        // LINE相談タイプが変更されたときの処理
+        // モードタブの初期化と設定
+        modeTabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // すべてのタブから active クラスを削除
+                modeTabs.forEach(t => t.classList.remove("active"));
+                // クリックされたタブに active クラスを追加
+                tab.classList.add("active");
+                
+                // 対応するセクションを表示
+                const mode = tab.dataset.mode;
+                modeSelect.value = mode; // 隠しフィールドの値を更新
+                
+                // すべてのセクションを非表示
+                document.querySelectorAll(".section").forEach(s => {
+                    if (s.id === "予約" || s.id === "相談") {
+                        s.classList.remove("visible");
+                    }
+                });
+                
+                // 選択されたモードのセクションを表示
+                document.getElementById(mode).classList.add("visible");
+                
+                console.log("モード変更:", mode);
+            });
+        });
+        
+        // 相談タイプタブ（LINE/MEO）の初期化と設定
+        consultTypeTabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // すべてのタブから active クラスを削除
+                consultTypeTabs.forEach(t => t.classList.remove("active"));
+                // クリックされたタブに active クラスを追加
+                tab.classList.add("active");
+                
+                const type = tab.dataset.type;
+                
+                // コンテンツの表示切り替え
+                if (type === "line") {
+                    document.querySelector(".line-content").classList.add("visible");
+                    document.querySelector(".meo-content").classList.remove("visible");
+                } else if (type === "meo") {
+                    document.querySelector(".line-content").classList.remove("visible");
+                    document.querySelector(".meo-content").classList.add("visible");
+                }
+                
+                // 選択をリセット
+                if (consultType) consultType.value = "";
+                if (meoConsultType) meoConsultType.value = "";
+                
+                // サブセクションをすべて非表示
+                document.querySelectorAll(".line-content .section, .meo-content .section").forEach(s => {
+                    if (!s.id.startsWith("相談")) {
+                        s.classList.remove("visible");
+                    }
+                });
+                
+                console.log("相談タイプ変更:", type);
+            });
+        });
+        
+        // LINE相談タイプ変更イベント
         if (consultType) {
             consultType.addEventListener("change", () => {
-                // 全てのセクションを非表示
+                // すべてのサブセクションを非表示
                 document.querySelectorAll(".line-content .section").forEach(s => {
                     if (!s.id.startsWith("相談")) {
                         s.classList.remove("visible");
@@ -523,14 +587,15 @@
                         console.error("セクションが見つかりません:", selected);
                     }
                 }
+                
                 console.log("LINE相談タイプ変更:", selected);
             });
         }
         
-        // MEO相談タイプが変更されたときの処理
+        // MEO相談タイプ変更イベント
         if (meoConsultType) {
             meoConsultType.addEventListener("change", () => {
-                // 全てのセクションを非表示
+                // すべてのサブセクションを非表示
                 document.querySelectorAll(".meo-content .section").forEach(s => {
                     if (!s.id.startsWith("相談")) {
                         s.classList.remove("visible");
@@ -547,74 +612,23 @@
                         console.error("セクションが見つかりません:", selected);
                     }
                 }
+                
                 console.log("MEO相談タイプ変更:", selected);
             });
         }
-    });
 
-        // 相談タイプタブ(LINE/MEO)切り替え
-        consultTypeTabs.forEach(tab => {
-            tab.addEventListener("click", () => {
-                // 全てのタブから active クラスを削除
-                consultTypeTabs.forEach(t => t.classList.remove("active"));
-                // クリックされたタブに active クラスを追加
-                tab.classList.add("active");
-
-                const type = tab.dataset.type;
-
-                // コンテンツの表示切り替え
-                if (type === "line") {
-                    document.querySelector(".line-content").classList.add("visible");
-                    document.querySelector(".meo-content").classList.remove("visible");
-                } else if (type === "meo") {
-                    document.querySelector(".line-content").classList.remove("visible");
-                    document.querySelector(".meo-content").classList.add("visible");
-                }
-
-                // 相談タイプセレクトをリセット
-                if (consultType) consultType.value = "";
-                if (meoConsultType) meoConsultType.value = "";
-
-                // セクションをすべて非表示
-                document.querySelectorAll(".line-content .section, .meo-content .section").forEach(s => {
-                    if (!s.id.startsWith("相談")) {
-                        s.classList.remove("visible");
-                    }
-                });
-            });
-        });
-
-        // LINE相談タイプが変更されたときの処理
-        if (consultType) {
-            consultType.addEventListener("change", () => {
-                document.querySelectorAll(".line-content .section").forEach(s => s.classList.remove("visible"));
-                const selected = consultType.value;
-                if (selected) {
-                    const targetSection = document.getElementById(selected);
-                    if (targetSection) {
-                        targetSection.classList.add("visible");
-                    }
+        // メニュー操作変更イベント
+        const menuAction = document.getElementById("menuAction");
+        if (menuAction) {
+            menuAction.addEventListener("change", () => {
+                const existingMenuGroup = document.getElementById("existingMenuGroup");
+                if (menuAction.value === "変更" || menuAction.value === "削除") {
+                    existingMenuGroup.style.display = "block";
+                } else {
+                    existingMenuGroup.style.display = "none";
                 }
             });
         }
-
-        // MEO相談タイプが変更されたときの処理
-        if (meoConsultType) {
-            meoConsultType.addEventListener("change", () => {
-                document.querySelectorAll(".meo-content .section").forEach(s => s.classList.remove("visible"));
-                const selected = meoConsultType.value;
-                if (selected) {
-                    const targetSection = document.getElementById(selected);
-                    if (targetSection) {
-                        targetSection.classList.add("visible");
-                    }
-                }
-            });
-        }
-
-        // 初期状態では予約タブをアクティブに
-        document.querySelector('.mode-tab[data-mode="予約"]').classList.add("active");
-        document.getElementById("予約").classList.add("visible");
 
         // 日時フォーマット変更のための処理
         const dateInputs = document.querySelectorAll('input[type="datetime-local"]');
